@@ -23,8 +23,12 @@ public class GlobalExceptionHandler {
         pd.setTitle("Validation Failed");
         pd.setStatus(HttpStatus.BAD_REQUEST.value());
         pd.setDetail("One or more validation errors occurred");
-        pd.setInstance(request.getDescription(false).replace("uri=", ""));
-        pd.setTimestamp(Instant.now());
+    pd.setInstance(request.getDescription(false).replace("uri=", ""));
+    pd.setTimestamp(Instant.now());
+    String trace = request.getHeader("X-Trace-Id");
+    if (trace == null) trace = request.getHeader("X-Request-ID");
+    if (trace == null) trace = java.util.UUID.randomUUID().toString();
+    pd.setTraceId(trace);
         List<Violation> violations = new ArrayList<>();
         ex.getBindingResult().getFieldErrors().forEach(fe -> violations.add(new Violation(fe.getField(), fe.getDefaultMessage())));
         pd.setViolations(violations);
@@ -38,8 +42,12 @@ public class GlobalExceptionHandler {
         pd.setTitle("Resource Not Found");
         pd.setStatus(HttpStatus.NOT_FOUND.value());
         pd.setDetail(ex.getMessage());
-        pd.setInstance(request.getDescription(false).replace("uri=", ""));
-        pd.setTimestamp(Instant.now());
+    pd.setInstance(request.getDescription(false).replace("uri=", ""));
+    pd.setTimestamp(Instant.now());
+    String trace = request.getHeader("X-Trace-Id");
+    if (trace == null) trace = request.getHeader("X-Request-ID");
+    if (trace == null) trace = java.util.UUID.randomUUID().toString();
+    pd.setTraceId(trace);
         return new ResponseEntity<>(pd, HttpStatus.NOT_FOUND);
     }
 
@@ -50,8 +58,12 @@ public class GlobalExceptionHandler {
         pd.setTitle("Internal Server Error");
         pd.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
         pd.setDetail(ex.getMessage());
-        pd.setInstance(request.getDescription(false).replace("uri=", ""));
-        pd.setTimestamp(Instant.now());
+    pd.setInstance(request.getDescription(false).replace("uri=", ""));
+    pd.setTimestamp(Instant.now());
+    String trace = request.getHeader("X-Trace-Id");
+    if (trace == null) trace = request.getHeader("X-Request-ID");
+    if (trace == null) trace = java.util.UUID.randomUUID().toString();
+    pd.setTraceId(trace);
         return new ResponseEntity<>(pd, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }

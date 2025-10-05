@@ -15,4 +15,7 @@ public class Violation {
     public void setField(String field) { this.field = field; }
     public String getMessage() { return message; }
     public void setMessage(String message) { this.message = message; }
+    // compatibility aliases
+    public String getName() { return field; }
+    public String getReason() { return message; }
 }

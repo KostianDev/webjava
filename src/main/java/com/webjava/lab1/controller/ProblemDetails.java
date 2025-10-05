@@ -11,6 +11,7 @@ public class ProblemDetails {
     private String instance;
     private Instant timestamp;
     private List<Violation> violations;
+    private String traceId;
 
     public ProblemDetails() {}
 
@@ -28,4 +29,6 @@ public class ProblemDetails {
     public void setTimestamp(Instant timestamp) { this.timestamp = timestamp; }
     public List<Violation> getViolations() { return violations; }
     public void setViolations(List<Violation> violations) { this.violations = violations; }
+    public String getTraceId() { return traceId; }
+    public void setTraceId(String traceId) { this.traceId = traceId; }
 }
