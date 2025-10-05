@@ -7,9 +7,9 @@ import org.mapstruct.factory.Mappers;
 
 @Mapper(componentModel = "spring")
 public interface ProductMapper {
-    ProductMapper INSTANCE = Mappers.getMapper(ProductMapper.class);
+  ProductMapper INSTANCE = Mappers.getMapper(ProductMapper.class);
 
-    ProductDTO toDto(Product product);
+  ProductDTO toDto(Product product);
 
-    Product toEntity(ProductDTO dto);
+  Product toEntity(ProductDTO dto);
 }
