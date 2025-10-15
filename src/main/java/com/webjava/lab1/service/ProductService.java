@@ -54,7 +54,7 @@ public class ProductService {
   }
 
   public void delete(UUID id) {
-    if (!storage.containsKey(id)) throw new ProductNotFoundException(id);
+    // idempotent delete: removing a non-existing id is a no-op
     storage.remove(id);
   }
 }

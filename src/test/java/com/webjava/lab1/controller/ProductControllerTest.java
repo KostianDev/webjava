@@ -1,12 +1,14 @@
 package com.webjava.lab1.controller;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.webjava.lab1.dto.ProductDTO;
 import java.math.BigDecimal;
+import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -56,5 +58,12 @@ public class ProductControllerTest {
         .andExpect(jsonPath("$.error").value("Bad Request"))
         .andExpect(jsonPath("$.message").exists())
         .andExpect(jsonPath("$.path").value("/api/products"));
+  }
+
+  @Test
+  void deleteIsIdempotentForNonExisting() throws Exception {
+    String id = UUID.randomUUID().toString();
+
+    mvc.perform(delete("/api/products/{id}", id)).andExpect(status().isNoContent());
   }
 }
