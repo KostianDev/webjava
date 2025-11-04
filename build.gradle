@@ -3,6 +3,8 @@ plugins {
 	id 'org.springframework.boot' version '3.5.7'
 	id 'io.spring.dependency-management' version '1.1.7'
 	id 'com.diffplug.spotless' version '6.25.0'
+	id 'org.barfuin.gradle.jacocolog' version '3.1.0'
+	id 'jacoco'
 }
 
 group = 'com.webjava'
@@ -13,6 +15,14 @@ java {
 	toolchain {
 		languageVersion = JavaLanguageVersion.of(21)
 	}
+}
+
+ext {
+	minimumCoveragePerFile = 0.8
+	filesExcludedFromCoverage = [
+		"**/*Application.*",
+		"**/config/*Configuration.*"
+	]
 }
 
 configurations {
@@ -28,24 +38,28 @@ repositories {
 dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	implementation 'org.springframework.boot:spring-boot-starter-validation'
-	implementation 'org.mapstruct:mapstruct:1.5.5.Final'
 	implementation('org.springdoc:springdoc-openapi-starter-webmvc-ui:2.1.0') {
 		exclude group: 'org.apache.commons', module: 'commons-lang3'
 	}
-	// Explicitly provide a controlled (patched) version of commons-lang3 to avoid
-	// using the transitive vulnerable 3.17.0 pulled by swagger-core.
 	implementation 'org.apache.commons:commons-lang3:3.18.0'
-    implementation 'org.springframework.boot:spring-boot-starter-actuator'
-    compileOnly 'org.projectlombok:lombok'
-	annotationProcessor 'org.projectlombok:lombok'
-	annotationProcessor 'org.mapstruct:mapstruct-processor:1.5.5.Final'
+	implementation 'org.mapstruct:mapstruct:1.6.2'
+	implementation 'org.projectlombok:lombok-mapstruct-binding:0.2.0'
+	implementation 'jakarta.validation:jakarta.validation-api:3.1.0'
+	implementation 'org.springframework.boot:spring-boot-starter-actuator'
+	compileOnly 'org.projectlombok:lombok:1.18.34'
+	annotationProcessor 'org.projectlombok:lombok:1.18.34'
+	annotationProcessor 'org.mapstruct:mapstruct-processor:1.6.2'
+	annotationProcessor 'org.projectlombok:lombok-mapstruct-binding:0.2.0'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
-	testImplementation 'org.wiremock:wiremock-standalone:3.5.4'
+	testImplementation 'org.springframework.boot:spring-boot-testcontainers'
+	testImplementation 'org.springframework.security:spring-security-test'
+	testImplementation 'org.testcontainers:junit-jupiter'
+	testImplementation 'org.assertj:assertj-core:3.24.2'
+	testImplementation 'org.projectlombok:lombok:1.18.34'
+	testImplementation 'org.wiremock:wiremock-jetty12:3.9.2'
+	testAnnotationProcessor 'org.projectlombok:lombok:1.18.34'
+	testAnnotationProcessor 'org.mapstruct:mapstruct-processor:1.6.2'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
-}
-
-tasks.named('test') {
-	useJUnitPlatform()
 }
 
 spotless {
@@ -54,3 +68,6 @@ spotless {
 		target 'src/**/*.java'
 	}
 }
+
+apply from: "${rootProject.projectDir}/gradle/test.gradle"
+apply from: "${rootProject.projectDir}/gradle/jacoco.gradle"
