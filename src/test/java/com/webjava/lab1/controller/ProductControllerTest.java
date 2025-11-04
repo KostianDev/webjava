@@ -33,9 +33,9 @@ public class ProductControllerTest {
     dto.setCategory("Textiles");
 
     mvc.perform(
-            post("/api/v1.1/products")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(mapper.writeValueAsString(dto)))
+      post("/api/v1.1/products")
+        .contentType(java.util.Objects.requireNonNull(MediaType.APPLICATION_JSON))
+        .content(java.util.Objects.requireNonNull(mapper.writeValueAsString(dto))))
         .andExpect(status().isCreated())
         .andExpect(jsonPath("$.id").exists())
         .andExpect(jsonPath("$.name").value("Star Yarn"));
@@ -50,9 +50,9 @@ public class ProductControllerTest {
     dto.setCategory("");
 
     mvc.perform(
-            post("/api/v1.1/products")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(mapper.writeValueAsString(dto)))
+      post("/api/v1.1/products")
+        .contentType(java.util.Objects.requireNonNull(MediaType.APPLICATION_JSON))
+        .content(java.util.Objects.requireNonNull(mapper.writeValueAsString(dto))))
         .andExpect(status().isBadRequest())
         .andExpect(jsonPath("$.status").value(400))
         .andExpect(jsonPath("$.error").value("Bad Request"))
