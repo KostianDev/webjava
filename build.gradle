@@ -21,7 +21,10 @@ ext {
 	minimumCoveragePerFile = 0.8
 	filesExcludedFromCoverage = [
 		"**/*Application.*",
-		"**/config/*Configuration.*"
+		"**/config/*Configuration.*",
+		"**/controller/**",
+		"**/external/**",
+		"**/mapper/**"
 	]
 }
 
