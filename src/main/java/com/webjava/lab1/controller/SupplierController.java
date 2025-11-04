@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/supplier")
+@RequestMapping("${api.prefix:/api/v1.1}/supplier")
 public class SupplierController {
   private final SupplierClient client;
 

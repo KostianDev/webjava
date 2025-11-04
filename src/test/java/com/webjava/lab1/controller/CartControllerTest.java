@@ -19,7 +19,6 @@ public class CartControllerTest {
   @Test
   void deleteIsIdempotentForNonExistingCart() throws Exception {
     String id = UUID.randomUUID().toString();
-    mvc.perform(delete("/api/carts/{id}", id)).andExpect(status().isNoContent());
+    mvc.perform(delete("/api/v1.1/carts/{id}", id)).andExpect(status().isNoContent());
   }
 }
-

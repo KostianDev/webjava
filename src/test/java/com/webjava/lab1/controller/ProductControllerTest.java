@@ -33,7 +33,7 @@ public class ProductControllerTest {
     dto.setCategory("Textiles");
 
     mvc.perform(
-            post("/api/products")
+            post("/api/v1.1/products")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(mapper.writeValueAsString(dto)))
         .andExpect(status().isCreated())
@@ -50,20 +50,20 @@ public class ProductControllerTest {
     dto.setCategory("");
 
     mvc.perform(
-            post("/api/products")
+            post("/api/v1.1/products")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(mapper.writeValueAsString(dto)))
         .andExpect(status().isBadRequest())
         .andExpect(jsonPath("$.status").value(400))
         .andExpect(jsonPath("$.error").value("Bad Request"))
         .andExpect(jsonPath("$.message").exists())
-        .andExpect(jsonPath("$.path").value("/api/products"));
+        .andExpect(jsonPath("$.path").value("/api/v1.1/products"));
   }
 
   @Test
   void deleteIsIdempotentForNonExisting() throws Exception {
     String id = UUID.randomUUID().toString();
 
-    mvc.perform(delete("/api/products/{id}", id)).andExpect(status().isNoContent());
+    mvc.perform(delete("/api/v1.1/products/{id}", id)).andExpect(status().isNoContent());
   }
 }

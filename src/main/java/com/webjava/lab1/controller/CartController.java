@@ -9,7 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/carts")
+@RequestMapping("${api.prefix:/api/v1.1}/carts")
 public class CartController {
   private final CartService service;
   private final CartMapper mapper;
