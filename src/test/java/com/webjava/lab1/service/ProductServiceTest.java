@@ -22,14 +22,21 @@ class ProductServiceTest {
 
   @Test
   void createAssignsIdAndPersistsProduct() {
-    Product product =
-        new Product(null, "Nebula Silk", "Shimmering fabric", new BigDecimal("19.99"), "Textiles");
+    Product product = new Product(
+      null,
+      "Nebula Silk",
+      "Shimmering fabric",
+      new BigDecimal("19.99"),
+      "Textiles"
+    );
 
     Product created = service.create(product);
 
     assertThat(created.getId()).isNotNull();
     assertThat(service.get(created.getId())).contains(created);
-    assertThat(service.list()).extracting(Product::getName).contains("Nebula Silk");
+    assertThat(service.list())
+      .extracting(Product::getName)
+      .contains("Nebula Silk");
   }
 
   @Test
@@ -51,8 +58,13 @@ class ProductServiceTest {
   void updateReplacesExistingProduct() {
     Product existing = service.list().get(0);
     UUID id = existing.getId();
-    Product updateRequest =
-        new Product(null, "Updated", "Updated description", new BigDecimal("1.11"), "Updated");
+    Product updateRequest = new Product(
+      null,
+      "Updated",
+      "Updated description",
+      new BigDecimal("1.11"),
+      "Updated"
+    );
 
     Product updated = service.update(id, updateRequest);
 
@@ -63,11 +75,17 @@ class ProductServiceTest {
 
   @Test
   void updateThrowsWhenProductMissing() {
-    Product updateRequest =
-        new Product(null, "Missing", "Missing", new BigDecimal("2.22"), "Nowhere");
+    Product updateRequest = new Product(
+      null,
+      "Missing",
+      "Missing",
+      new BigDecimal("2.22"),
+      "Nowhere"
+    );
 
-    assertThatThrownBy(() -> service.update(UUID.randomUUID(), updateRequest))
-        .isInstanceOf(ProductNotFoundException.class);
+    assertThatThrownBy(() ->
+      service.update(UUID.randomUUID(), updateRequest)
+    ).isInstanceOf(ProductNotFoundException.class);
   }
 
   @Test

@@ -12,6 +12,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class OrderDTO {
+
   private UUID id;
   private List<OrderItemDTO> items = new ArrayList<>();
   private BigDecimal total;

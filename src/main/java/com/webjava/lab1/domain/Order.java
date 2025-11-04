@@ -11,6 +11,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Order {
+
   private UUID id;
   private List<OrderItem> items = new ArrayList<>();
   private java.math.BigDecimal total;

@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("${api.prefix:/api/v1.1}/supplier")
 public class SupplierController {
+
   private final SupplierClient client;
 
   public SupplierController(SupplierClient client) {

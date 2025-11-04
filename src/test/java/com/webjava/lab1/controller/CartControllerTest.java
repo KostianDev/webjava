@@ -38,12 +38,17 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
 @WebMvcTest(CartController.class)
-@Import({TraceIdFilter.class, CartControllerTest.TestConfig.class})
+@Import({ TraceIdFilter.class, CartControllerTest.TestConfig.class })
 class CartControllerTest {
 
-  @Autowired private MockMvc mockMvc;
-  @Autowired private ObjectMapper objectMapper;
-  @Autowired private CartService cartService;
+  @Autowired
+  private MockMvc mockMvc;
+
+  @Autowired
+  private ObjectMapper objectMapper;
+
+  @Autowired
+  private CartService cartService;
 
   @AfterEach
   void resetMocks() {
@@ -55,18 +60,24 @@ class CartControllerTest {
     UUID productId = UUID.randomUUID();
     UUID cartId = UUID.randomUUID();
 
-    CartDTO requestDto = new CartDTO(null, List.of(new CartItemDTO(productId, 3)));
+    CartDTO requestDto = new CartDTO(
+      null,
+      List.of(new CartItemDTO(productId, 3))
+    );
     Cart created = new Cart(cartId, List.of(new CartItem(productId, 3)));
 
     when(cartService.create(any(Cart.class))).thenReturn(created);
 
-    String payload = Objects.requireNonNull(objectMapper.writeValueAsString(requestDto));
+    String payload = Objects.requireNonNull(
+      objectMapper.writeValueAsString(requestDto)
+    );
 
     mockMvc
       .perform(
         post("/api/v1.1/carts")
           .contentType(MediaType.APPLICATION_JSON_VALUE)
-          .content(payload))
+          .content(payload)
+      )
       .andExpect(status().isCreated())
       .andExpect(header().exists(TRACE_ID_HEADER))
       .andExpect(jsonPath("$.id").value(cartId.toString()))
@@ -77,7 +88,9 @@ class CartControllerTest {
     verify(cartService).create(captor.capture());
     Cart captured = captor.getValue();
     assertThat(captured.getItems()).hasSize(1);
-    assertThat(captured.getItems().getFirst().getProductId()).isEqualTo(productId);
+    assertThat(captured.getItems().getFirst().getProductId()).isEqualTo(
+      productId
+    );
     assertThat(captured.getItems().getFirst().getQuantity()).isEqualTo(3);
   }
 
@@ -124,6 +137,7 @@ class CartControllerTest {
 
   @TestConfiguration
   static class TestConfig {
+
     @Bean
     CartMapper cartMapper() {
       return new CartMapperImpl();

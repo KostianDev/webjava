@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class OrderItem {
+
   private UUID productId;
   private int quantity;
   private java.math.BigDecimal price;

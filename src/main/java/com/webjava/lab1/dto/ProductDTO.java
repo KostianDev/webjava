@@ -14,6 +14,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ProductDTO {
+
   private UUID id;
 
   @NotBlank(message = "name must not be blank")
