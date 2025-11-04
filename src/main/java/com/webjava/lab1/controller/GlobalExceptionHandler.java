@@ -8,10 +8,10 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
-import org.springframework.lang.NonNull;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -21,25 +21,42 @@ import org.springframework.web.context.request.WebRequest;
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
-  @NonNull
+  private static final URI VALIDATION_PROBLEM_TYPE =
+      URI.create("https://example.com/probs/validation");
+  private static final URI NOT_FOUND_PROBLEM_TYPE =
+      URI.create("https://example.com/probs/not-found");
+  private static final URI INTERNAL_PROBLEM_TYPE =
+      URI.create("https://example.com/probs/internal");
+
+  @SuppressWarnings("null")
   private String resolveTraceId(WebRequest request) {
-    Object attribute =
+    String traceId = null;
+    Object attributeRaw =
         request.getAttribute(TraceIdFilter.TRACE_ID_ATTRIBUTE, WebRequest.SCOPE_REQUEST);
-    if (attribute instanceof String s && !s.isBlank()) {
-      return s;
+    String attribute = attributeRaw instanceof String ? (String) attributeRaw : null;
+    if (attribute != null && !attribute.isBlank()) {
+      traceId = attribute;
     }
 
-    String trace = request.getHeader(TraceIdFilter.TRACE_ID_HEADER);
-    if (trace != null && !trace.isBlank()) {
-      return trace;
+    if (traceId == null || traceId.isBlank()) {
+      String headerTrace = request.getHeader(TraceIdFilter.TRACE_ID_HEADER);
+      if (headerTrace != null && !headerTrace.isBlank()) {
+        traceId = headerTrace;
+      }
     }
 
-    String fallback = request.getHeader("X-Request-ID");
-    if (fallback != null && !fallback.isBlank()) {
-      return fallback;
+    if (traceId == null || traceId.isBlank()) {
+      String fallback = request.getHeader("X-Request-ID");
+      if (fallback != null && !fallback.isBlank()) {
+        traceId = fallback;
+      }
     }
 
-    return java.util.UUID.randomUUID().toString();
+    if (traceId == null || traceId.isBlank()) {
+      traceId = java.util.UUID.randomUUID().toString();
+    }
+
+    return traceId;
   }
 
   @ExceptionHandler(MethodArgumentNotValidException.class)
@@ -54,7 +71,7 @@ public class GlobalExceptionHandler {
               "Validation failed for object '%s': Field '%s' %s.",
               objectName, fieldError.getField(), fieldError.getDefaultMessage());
     }
-    String path = resolvePath(request);
+  String path = resolvePath(request);
     String traceId = resolveTraceId(request);
 
     List<Map<String, Object>> violations = new ArrayList<>();
@@ -78,7 +95,7 @@ public class GlobalExceptionHandler {
             });
 
     ProblemDetail body = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
-    body.setType(URI.create("https://example.com/probs/validation"));
+    body.setType(Objects.requireNonNull(VALIDATION_PROBLEM_TYPE));
     body.setTitle("Validation Failed");
     body.setDetail(messageDetail);
     body.setInstance(toInstanceUri(path));
@@ -101,7 +118,7 @@ public class GlobalExceptionHandler {
     String path = resolvePath(request);
 
     ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.NOT_FOUND);
-    pd.setType(URI.create("https://example.com/probs/not-found"));
+    pd.setType(Objects.requireNonNull(NOT_FOUND_PROBLEM_TYPE));
     pd.setTitle("Resource Not Found");
     pd.setDetail(ex.getMessage());
     pd.setInstance(toInstanceUri(path));
@@ -119,7 +136,7 @@ public class GlobalExceptionHandler {
     String path = resolvePath(request);
 
     ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.INTERNAL_SERVER_ERROR);
-    pd.setType(URI.create("https://example.com/probs/internal"));
+    pd.setType(Objects.requireNonNull(INTERNAL_PROBLEM_TYPE));
     pd.setTitle("Internal Server Error");
     pd.setDetail(ex.getMessage());
     pd.setInstance(toInstanceUri(path));
@@ -131,28 +148,28 @@ public class GlobalExceptionHandler {
         .body(pd);
   }
 
-  @NonNull
   private String resolvePath(WebRequest request) {
+    String path = null;
     if (request instanceof ServletWebRequest servletRequest) {
       String uri = servletRequest.getRequest().getRequestURI();
       if (uri != null && !uri.isBlank()) {
-        return uri;
+        path = uri;
       }
     }
 
-    String description = request.getDescription(false);
-    if (description != null && description.startsWith("uri=")) {
-      description = description.substring(4);
+    if (path == null || path.isBlank()) {
+      String description = request.getDescription(false);
+      if (description != null && description.startsWith("uri=")) {
+        description = description.substring(4);
+      }
+      if (description != null && !description.isBlank()) {
+        path = description;
+      }
     }
 
-    if (description == null || description.isBlank()) {
-      return "/";
-    }
-
-    return description;
+    return (path == null || path.isBlank()) ? "/" : path;
   }
 
-  @NonNull
   private URI toInstanceUri(String path) {
     String candidate = path != null && !path.isBlank() ? path : "/";
     if (!candidate.startsWith("/")) {
