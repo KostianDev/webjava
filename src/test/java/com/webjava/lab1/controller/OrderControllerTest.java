@@ -1,5 +1,7 @@
 package com.webjava.lab1.controller;
 
+import static com.webjava.lab1.web.TraceIdFilter.TRACE_ID_HEADER;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -25,7 +27,9 @@ import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
@@ -37,9 +41,9 @@ import org.springframework.test.web.servlet.MockMvc;
 @Import({TraceIdFilter.class, OrderControllerTest.TestConfig.class})
 class OrderControllerTest {
 
-  @org.springframework.beans.factory.annotation.Autowired private MockMvc mockMvc;
-  @org.springframework.beans.factory.annotation.Autowired private ObjectMapper objectMapper;
-  @org.springframework.beans.factory.annotation.Autowired private OrderService orderService;
+  @Autowired private MockMvc mockMvc;
+  @Autowired private ObjectMapper objectMapper;
+  @Autowired private OrderService orderService;
 
   @AfterEach
   void resetMocks() {
@@ -50,7 +54,7 @@ class OrderControllerTest {
   void createOrderReturnsCreatedDto() throws Exception {
     UUID productId = UUID.randomUUID();
     UUID orderId = UUID.randomUUID();
-    OrderDTO request =
+    OrderDTO requestDto =
         new OrderDTO(
             null,
             List.of(new OrderItemDTO(productId, 1, new BigDecimal("19.99"))),
@@ -63,17 +67,24 @@ class OrderControllerTest {
 
     when(orderService.create(any(Order.class))).thenReturn(created);
 
+    String payload = Objects.requireNonNull(objectMapper.writeValueAsString(requestDto));
+
     mockMvc
         .perform(
             post("/api/v1.1/orders")
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
-                .content(Objects.requireNonNull(objectMapper.writeValueAsString(request))))
+                .content(payload))
         .andExpect(status().isCreated())
-    .andExpect(header().exists("X-Trace-Id"))
+        .andExpect(header().exists(TRACE_ID_HEADER))
         .andExpect(jsonPath("$.id").value(orderId.toString()))
         .andExpect(jsonPath("$.items[0].productId").value(productId.toString()));
 
-    verify(orderService).create(any(Order.class));
+    ArgumentCaptor<Order> captor = ArgumentCaptor.forClass(Order.class);
+    verify(orderService).create(captor.capture());
+    Order captured = captor.getValue();
+    assertThat(captured.getItems()).hasSize(1);
+    assertThat(captured.getItems().getFirst().getProductId()).isEqualTo(productId);
+    assertThat(captured.getItems().getFirst().getQuantity()).isEqualTo(1);
   }
 
   @Test
@@ -90,10 +101,12 @@ class OrderControllerTest {
 
     mockMvc
         .perform(get("/api/v1.1/orders"))
-    .andExpect(status().isOk())
-    .andExpect(header().exists("X-Trace-Id"))
+        .andExpect(status().isOk())
+        .andExpect(header().exists(TRACE_ID_HEADER))
         .andExpect(jsonPath("$[0].id").value(orderId.toString()))
         .andExpect(jsonPath("$[0].items[0].quantity").value(2));
+
+  verify(orderService).list();
   }
 
   @Test
@@ -101,10 +114,12 @@ class OrderControllerTest {
     UUID id = UUID.randomUUID();
     when(orderService.get(id)).thenReturn(Optional.empty());
 
-  mockMvc
-    .perform(get("/api/v1.1/orders/{id}", id))
-    .andExpect(status().isNotFound())
-    .andExpect(header().exists("X-Trace-Id"));
+    mockMvc
+        .perform(get("/api/v1.1/orders/{id}", id))
+        .andExpect(status().isNotFound())
+        .andExpect(header().exists(TRACE_ID_HEADER));
+
+  verify(orderService).get(id);
   }
 
   @Test
@@ -120,10 +135,12 @@ class OrderControllerTest {
 
     mockMvc
         .perform(get("/api/v1.1/orders/{id}", id))
-    .andExpect(status().isOk())
-    .andExpect(header().exists("X-Trace-Id"))
+        .andExpect(status().isOk())
+        .andExpect(header().exists(TRACE_ID_HEADER))
         .andExpect(jsonPath("$.items[0].quantity").value(5))
         .andExpect(jsonPath("$.total").value(10.00));
+
+    verify(orderService).get(id);
   }
 
   @TestConfiguration
