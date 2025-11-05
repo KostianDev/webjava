@@ -74,7 +74,7 @@ class CartControllerTest {
 
     mockMvc
       .perform(
-        post("/api/v1.1/carts")
+        post("/api/v1.2/carts")
           .contentType(MediaType.APPLICATION_JSON_VALUE)
           .content(payload)
       )
@@ -100,7 +100,7 @@ class CartControllerTest {
     when(cartService.get(id)).thenReturn(Optional.empty());
 
     mockMvc
-      .perform(get("/api/v1.1/carts/{id}", id))
+      .perform(get("/api/v1.2/carts/{id}", id))
       .andExpect(status().isNotFound())
       .andExpect(header().exists(TRACE_ID_HEADER));
 
@@ -115,7 +115,7 @@ class CartControllerTest {
     when(cartService.get(id)).thenReturn(Optional.of(cart));
 
     mockMvc
-      .perform(get("/api/v1.1/carts/{id}", id))
+      .perform(get("/api/v1.2/carts/{id}", id))
       .andExpect(status().isOk())
       .andExpect(header().exists(TRACE_ID_HEADER))
       .andExpect(jsonPath("$.items[0].quantity").value(2));
@@ -128,7 +128,7 @@ class CartControllerTest {
     UUID id = UUID.randomUUID();
 
     mockMvc
-      .perform(delete("/api/v1.1/carts/{id}", id))
+      .perform(delete("/api/v1.2/carts/{id}", id))
       .andExpect(status().isNoContent())
       .andExpect(header().exists(TRACE_ID_HEADER));
 

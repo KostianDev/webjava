@@ -78,7 +78,7 @@ class OrderControllerTest {
 
     mockMvc
       .perform(
-        post("/api/v1.1/orders")
+        post("/api/v1.2/orders")
           .contentType(MediaType.APPLICATION_JSON_VALUE)
           .content(payload)
       )
@@ -110,7 +110,7 @@ class OrderControllerTest {
     when(orderService.list()).thenReturn(List.of(order));
 
     mockMvc
-      .perform(get("/api/v1.1/orders"))
+      .perform(get("/api/v1.2/orders"))
       .andExpect(status().isOk())
       .andExpect(header().exists(TRACE_ID_HEADER))
       .andExpect(jsonPath("$[0].id").value(orderId.toString()))
@@ -125,7 +125,7 @@ class OrderControllerTest {
     when(orderService.get(id)).thenReturn(Optional.empty());
 
     mockMvc
-      .perform(get("/api/v1.1/orders/{id}", id))
+      .perform(get("/api/v1.2/orders/{id}", id))
       .andExpect(status().isNotFound())
       .andExpect(header().exists(TRACE_ID_HEADER));
 
@@ -144,7 +144,7 @@ class OrderControllerTest {
     when(orderService.get(id)).thenReturn(Optional.of(order));
 
     mockMvc
-      .perform(get("/api/v1.1/orders/{id}", id))
+      .perform(get("/api/v1.2/orders/{id}", id))
       .andExpect(status().isOk())
       .andExpect(header().exists(TRACE_ID_HEADER))
       .andExpect(jsonPath("$.items[0].quantity").value(5))
