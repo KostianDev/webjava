@@ -1,0 +1,16 @@
+{
+  "properties": [
+    {
+      "name": "supplier.base-url",
+      "type": "java.lang.String",
+      "description": "Base URL of the supplier service used by SupplierClient.",
+      "defaultValue": "http://localhost:8089"
+    },
+    {
+      "name": "api.prefix",
+      "type": "java.lang.String",
+      "description": "Global API prefix applied to REST controller mappings.",
+      "defaultValue": "/api/v1.1"
+    }
+  ]
+}
