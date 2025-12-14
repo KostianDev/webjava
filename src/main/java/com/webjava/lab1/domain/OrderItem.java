@@ -1,5 +1,6 @@
 package com.webjava.lab1.domain;
 
+import java.math.BigDecimal;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -12,5 +13,5 @@ public class OrderItem {
 
   private UUID productId;
   private int quantity;
-  private java.math.BigDecimal price;
+  private BigDecimal price;
 }

@@ -31,7 +31,7 @@ public class OrderItemEntity {
   @SequenceGenerator(
       name = "order_items_seq",
       sequenceName = "order_items_id_seq",
-      allocationSize = 1)
+      allocationSize = 50)
   private Long id;
 
   @ManyToOne(fetch = FetchType.LAZY)

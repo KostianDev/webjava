@@ -9,3 +9,5 @@ databaseChangeLog:
       file: db/changelog/changes/004-create-orders-table.yaml
   - include:
       file: db/changelog/changes/005-create-order-items-table.yaml
+  - include:
+      file: db/changelog/changes/006-alter-sequences-increment.yaml

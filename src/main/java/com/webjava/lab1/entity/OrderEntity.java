@@ -35,7 +35,7 @@ public class OrderEntity {
 
   @Id
   @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "orders_seq")
-  @SequenceGenerator(name = "orders_seq", sequenceName = "orders_id_seq", allocationSize = 1)
+  @SequenceGenerator(name = "orders_seq", sequenceName = "orders_id_seq", allocationSize = 50)
   private Long id;
 
   @NaturalId
@@ -53,7 +53,10 @@ public class OrderEntity {
   @Column(name = "created_at", nullable = false, updatable = false)
   private LocalDateTime createdAt;
 
-  @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
+  @OneToMany(
+      mappedBy = "order",
+      cascade = {CascadeType.PERSIST, CascadeType.MERGE},
+      orphanRemoval = true)
   @Builder.Default
   private List<OrderItemEntity> items = new ArrayList<>();
 

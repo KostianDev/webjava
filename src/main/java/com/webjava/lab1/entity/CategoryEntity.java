@@ -30,7 +30,7 @@ public class CategoryEntity {
   @SequenceGenerator(
       name = "categories_seq",
       sequenceName = "categories_id_seq",
-      allocationSize = 1)
+      allocationSize = 50)
   private Long id;
 
   @Column(name = "name", nullable = false, length = 100, unique = true)

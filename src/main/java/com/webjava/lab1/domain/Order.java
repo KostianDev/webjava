@@ -1,5 +1,6 @@
 package com.webjava.lab1.domain;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -14,5 +15,5 @@ public class Order {
 
   private UUID id;
   private List<OrderItem> items = new ArrayList<>();
-  private java.math.BigDecimal total;
+  private BigDecimal total;
 }
