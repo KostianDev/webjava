@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("${api.prefix:/api/v1.2}/orders")
+@RequestMapping("${api.prefix:/api/v4}/orders")
 public class OrderController {
 
   private final OrderService service;

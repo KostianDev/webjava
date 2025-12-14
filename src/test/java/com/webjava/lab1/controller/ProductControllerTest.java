@@ -76,7 +76,7 @@ class ProductControllerTest {
 
     mockMvc
         .perform(
-            post("/api/v1.2/products")
+            post("/api/v4/products")
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
                 .content(payload))
         .andExpect(status().isCreated())
@@ -95,7 +95,7 @@ class ProductControllerTest {
 
     mockMvc
         .perform(
-            post("/api/v1.2/products")
+            post("/api/v4/products")
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
                 .content(payload))
         .andExpect(status().isBadRequest())
@@ -116,7 +116,7 @@ class ProductControllerTest {
 
     mockMvc
         .perform(
-            put("/api/v1.2/products/{id}", id)
+            put("/api/v4/products/{id}", id)
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
                 .content(payload))
         .andExpect(status().isNotFound())
@@ -139,7 +139,7 @@ class ProductControllerTest {
     when(productService.get(id)).thenReturn(Optional.of(product));
 
     mockMvc
-        .perform(get("/api/v1.2/products/{id}", id))
+        .perform(get("/api/v4/products/{id}", id))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.name").value("Galaxy Milk"))
         .andExpect(jsonPath("$.price").value(4.50));
@@ -160,7 +160,7 @@ class ProductControllerTest {
     when(productService.list()).thenReturn(List.of(product));
 
     mockMvc
-        .perform(get("/api/v1.2/products"))
+        .perform(get("/api/v4/products"))
         .andExpect(status().isOk())
         .andExpect(header().exists(TRACE_ID_HEADER))
         .andExpect(jsonPath("$[0].name").value("Star Juice"));
@@ -187,7 +187,7 @@ class ProductControllerTest {
 
     mockMvc
         .perform(
-            put("/api/v1.2/products/{id}", id)
+            put("/api/v4/products/{id}", id)
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
                 .content(payload))
         .andExpect(status().isOk())
@@ -202,7 +202,7 @@ class ProductControllerTest {
     UUID id = UUID.randomUUID();
 
     mockMvc
-        .perform(delete("/api/v1.2/products/{id}", id))
+        .perform(delete("/api/v4/products/{id}", id))
         .andExpect(status().isNoContent())
         .andExpect(header().exists(TRACE_ID_HEADER));
 
@@ -215,11 +215,11 @@ class ProductControllerTest {
     when(productService.get(id)).thenThrow(new IllegalStateException("kaboom"));
 
     mockMvc
-        .perform(get("/api/v1.2/products/{id}", id))
+        .perform(get("/api/v4/products/{id}", id))
         .andExpect(status().isInternalServerError())
         .andExpect(header().exists(TRACE_ID_HEADER))
         .andExpect(jsonPath("$.title").value("Internal Server Error"))
-        .andExpect(jsonPath("$.path").value("/api/v1.2/products/" + id));
+        .andExpect(jsonPath("$.path").value("/api/v4/products/" + id));
 
     verify(productService).get(id);
   }
