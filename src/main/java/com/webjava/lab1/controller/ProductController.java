@@ -13,7 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("${api.prefix:/api/v1.2}/products")
+@RequestMapping("${api.prefix:/api/v2}/products")
 public class ProductController {
 
   private final ProductService service;

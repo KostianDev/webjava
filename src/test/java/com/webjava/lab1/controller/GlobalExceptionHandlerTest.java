@@ -28,7 +28,7 @@ class GlobalExceptionHandlerTest {
   @Test
   void handleNotFoundPropagatesHeaderTraceId() {
     MockHttpServletRequest request = new MockHttpServletRequest();
-    request.setRequestURI("/api/v1.2/products/" + UUID.randomUUID());
+    request.setRequestURI("/api/v2/products/" + UUID.randomUUID());
     request.addHeader(TRACE_ID_HEADER, "trace-123");
     ServletWebRequest webRequest = new ServletWebRequest(
       request,
@@ -77,7 +77,7 @@ class GlobalExceptionHandlerTest {
   @Test
   void handleValidationReturnsProblemDetailWithViolations() throws Exception {
     MockHttpServletRequest request = new MockHttpServletRequest();
-    request.setRequestURI("/api/v1.2/products");
+    request.setRequestURI("/api/v2/products");
     ServletWebRequest webRequest = new ServletWebRequest(
       request,
       new MockHttpServletResponse()
@@ -120,7 +120,7 @@ class GlobalExceptionHandlerTest {
   @Test
   void handleFeatureNotAvailableReturns501WithFeatureName() {
     MockHttpServletRequest request = new MockHttpServletRequest();
-    request.setRequestURI("/api/v1.2/cosmo-cats");
+    request.setRequestURI("/api/v2/cosmo-cats");
     request.addHeader(TRACE_ID_HEADER, "trace-feature-789");
     ServletWebRequest webRequest = new ServletWebRequest(
       request,

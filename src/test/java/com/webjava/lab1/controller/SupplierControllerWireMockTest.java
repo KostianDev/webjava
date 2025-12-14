@@ -69,7 +69,7 @@ class SupplierControllerWireMockTest {
     );
 
     mockMvc
-      .perform(get("/api/v1.2/supplier/products"))
+      .perform(get("/api/v2/supplier/products"))
       .andExpect(status().isOk())
       .andExpect(header().exists("X-Trace-Id"))
       .andExpect(jsonPath("$[0].id").value(productId.toString()))
@@ -97,7 +97,7 @@ class SupplierControllerWireMockTest {
     );
 
     mockMvc
-      .perform(get("/api/v1.2/supplier/products"))
+      .perform(get("/api/v2/supplier/products"))
       .andExpect(status().isOk())
       .andExpect(header().exists("X-Trace-Id"))
       .andExpect(jsonPath("$").isArray())
