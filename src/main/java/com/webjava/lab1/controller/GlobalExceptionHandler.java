@@ -22,29 +22,20 @@ import org.springframework.web.context.request.WebRequest;
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
-  private static final URI VALIDATION_PROBLEM_TYPE = URI.create(
-    "https://example.com/probs/validation"
-  );
-  private static final URI NOT_FOUND_PROBLEM_TYPE = URI.create(
-    "https://example.com/probs/not-found"
-  );
-  private static final URI INTERNAL_PROBLEM_TYPE = URI.create(
-    "https://example.com/probs/internal"
-  );
-  private static final URI FEATURE_DISABLED_PROBLEM_TYPE = URI.create(
-    "https://example.com/probs/feature-disabled"
-  );
+  private static final URI VALIDATION_PROBLEM_TYPE =
+      URI.create("https://example.com/probs/validation");
+  private static final URI NOT_FOUND_PROBLEM_TYPE =
+      URI.create("https://example.com/probs/not-found");
+  private static final URI INTERNAL_PROBLEM_TYPE = URI.create("https://example.com/probs/internal");
+  private static final URI FEATURE_DISABLED_PROBLEM_TYPE =
+      URI.create("https://example.com/probs/feature-disabled");
 
   @SuppressWarnings("null")
   private String resolveTraceId(WebRequest request) {
     String traceId = null;
-    Object attributeRaw = request.getAttribute(
-      TraceIdFilter.TRACE_ID_ATTRIBUTE,
-      WebRequest.SCOPE_REQUEST
-    );
-    String attribute = attributeRaw instanceof String
-      ? (String) attributeRaw
-      : null;
+    Object attributeRaw =
+        request.getAttribute(TraceIdFilter.TRACE_ID_ATTRIBUTE, WebRequest.SCOPE_REQUEST);
+    String attribute = attributeRaw instanceof String ? (String) attributeRaw : null;
     if (attribute != null && !attribute.isBlank()) {
       traceId = attribute;
     }
@@ -72,44 +63,38 @@ public class GlobalExceptionHandler {
 
   @ExceptionHandler(MethodArgumentNotValidException.class)
   public ResponseEntity<Object> handleValidation(
-    MethodArgumentNotValidException ex,
-    WebRequest request
-  ) {
-    org.springframework.validation.FieldError fieldError = ex
-      .getBindingResult()
-      .getFieldError();
+      MethodArgumentNotValidException ex, WebRequest request) {
+    org.springframework.validation.FieldError fieldError = ex.getBindingResult().getFieldError();
     String objectName = ex.getBindingResult().getObjectName();
     String messageDetail = "Validation failed";
     if (fieldError != null) {
-      messageDetail = String.format(
-        "Validation failed for object '%s': Field '%s' %s.",
-        objectName,
-        fieldError.getField(),
-        fieldError.getDefaultMessage()
-      );
+      messageDetail =
+          String.format(
+              "Validation failed for object '%s': Field '%s' %s.",
+              objectName, fieldError.getField(), fieldError.getDefaultMessage());
     }
     String path = resolvePath(request);
     String traceId = resolveTraceId(request);
 
     List<Map<String, Object>> violations = new ArrayList<>();
-    ex
-      .getBindingResult()
-      .getFieldErrors()
-      .forEach(error -> {
-        Map<String, Object> violation = new LinkedHashMap<>();
-        violation.put("field", error.getField());
-        violation.put("message", error.getDefaultMessage());
-        violations.add(violation);
-      });
-    ex
-      .getBindingResult()
-      .getGlobalErrors()
-      .forEach(error -> {
-        Map<String, Object> violation = new LinkedHashMap<>();
-        violation.put("object", error.getObjectName());
-        violation.put("message", error.getDefaultMessage());
-        violations.add(violation);
-      });
+    ex.getBindingResult()
+        .getFieldErrors()
+        .forEach(
+            error -> {
+              Map<String, Object> violation = new LinkedHashMap<>();
+              violation.put("field", error.getField());
+              violation.put("message", error.getDefaultMessage());
+              violations.add(violation);
+            });
+    ex.getBindingResult()
+        .getGlobalErrors()
+        .forEach(
+            error -> {
+              Map<String, Object> violation = new LinkedHashMap<>();
+              violation.put("object", error.getObjectName());
+              violation.put("message", error.getDefaultMessage());
+              violations.add(violation);
+            });
 
     ProblemDetail body = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
     body.setType(Objects.requireNonNull(VALIDATION_PROBLEM_TYPE));
@@ -124,15 +109,13 @@ public class GlobalExceptionHandler {
     body.setProperty("violations", violations);
 
     return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-      .header(TraceIdFilter.TRACE_ID_HEADER, traceId)
-      .body(body);
+        .header(TraceIdFilter.TRACE_ID_HEADER, traceId)
+        .body(body);
   }
 
   @ExceptionHandler(ProductNotFoundException.class)
   public ResponseEntity<ProblemDetail> handleNotFound(
-    ProductNotFoundException ex,
-    WebRequest request
-  ) {
+      ProductNotFoundException ex, WebRequest request) {
     String traceId = resolveTraceId(request);
     String path = resolvePath(request);
 
@@ -145,15 +128,13 @@ public class GlobalExceptionHandler {
     pd.setProperty("traceId", traceId);
     pd.setProperty("path", path);
     return ResponseEntity.status(HttpStatus.NOT_FOUND)
-      .header(TraceIdFilter.TRACE_ID_HEADER, traceId)
-      .body(pd);
+        .header(TraceIdFilter.TRACE_ID_HEADER, traceId)
+        .body(pd);
   }
 
   @ExceptionHandler(FeatureNotAvailableException.class)
   public ResponseEntity<ProblemDetail> handleFeatureNotAvailable(
-    FeatureNotAvailableException ex,
-    WebRequest request
-  ) {
+      FeatureNotAvailableException ex, WebRequest request) {
     String traceId = resolveTraceId(request);
     String path = resolvePath(request);
 
@@ -167,21 +148,16 @@ public class GlobalExceptionHandler {
     pd.setProperty("path", path);
     pd.setProperty("featureName", ex.getFeatureName());
     return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED)
-      .header(TraceIdFilter.TRACE_ID_HEADER, traceId)
-      .body(pd);
+        .header(TraceIdFilter.TRACE_ID_HEADER, traceId)
+        .body(pd);
   }
 
   @ExceptionHandler(Exception.class)
-  public ResponseEntity<ProblemDetail> handleAll(
-    Exception ex,
-    WebRequest request
-  ) {
+  public ResponseEntity<ProblemDetail> handleAll(Exception ex, WebRequest request) {
     String traceId = resolveTraceId(request);
     String path = resolvePath(request);
 
-    ProblemDetail pd = ProblemDetail.forStatus(
-      HttpStatus.INTERNAL_SERVER_ERROR
-    );
+    ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.INTERNAL_SERVER_ERROR);
     pd.setType(Objects.requireNonNull(INTERNAL_PROBLEM_TYPE));
     pd.setTitle("Internal Server Error");
     pd.setDetail(ex.getMessage());
@@ -190,8 +166,8 @@ public class GlobalExceptionHandler {
     pd.setProperty("traceId", traceId);
     pd.setProperty("path", path);
     return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-      .header(TraceIdFilter.TRACE_ID_HEADER, traceId)
-      .body(pd);
+        .header(TraceIdFilter.TRACE_ID_HEADER, traceId)
+        .body(pd);
   }
 
   private String resolvePath(WebRequest request) {

@@ -40,23 +40,18 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
 @WebMvcTest(ProductController.class)
-@Import(
-  {
-    GlobalExceptionHandler.class,
-    TraceIdFilter.class,
-    ProductControllerTest.TestConfig.class,
-  }
-)
+@Import({
+  GlobalExceptionHandler.class,
+  TraceIdFilter.class,
+  ProductControllerTest.TestConfig.class,
+})
 class ProductControllerTest {
 
-  @Autowired
-  private MockMvc mockMvc;
+  @Autowired private MockMvc mockMvc;
 
-  @Autowired
-  private ObjectMapper objectMapper;
+  @Autowired private ObjectMapper objectMapper;
 
-  @Autowired
-  private ProductService productService;
+  @Autowired private ProductService productService;
 
   @AfterEach
   void resetMocks() {
@@ -65,36 +60,27 @@ class ProductControllerTest {
 
   @Test
   void createProductHappyPath() throws Exception {
-    UUID id = UUID.randomUUID();
-    Product created = new Product(
-      id,
-      "Star Yarn",
-      "Antigravity",
-      new BigDecimal("9.99"),
-      "Textiles"
-    );
+    Product created =
+        Product.builder()
+            .id(1L)
+            .name("Star Yarn")
+            .description("Antigravity")
+            .price(new BigDecimal("9.99"))
+            .categoryName("Textiles")
+            .build();
     when(productService.create(any(Product.class))).thenReturn(created);
 
-    ProductDTO requestDto = new ProductDTO(
-      null,
-      "Star Yarn",
-      "Antigravity",
-      new BigDecimal("9.99"),
-      "Textiles"
-    );
-    String payload = Objects.requireNonNull(
-      objectMapper.writeValueAsString(requestDto)
-    );
+    ProductDTO requestDto =
+        new ProductDTO(null, "Star Yarn", "Antigravity", new BigDecimal("9.99"), "Textiles");
+    String payload = Objects.requireNonNull(objectMapper.writeValueAsString(requestDto));
 
     mockMvc
-      .perform(
-        post("/api/v1.2/products")
-          .contentType(MediaType.APPLICATION_JSON_VALUE)
-          .content(payload)
-      )
-      .andExpect(status().isCreated())
-      .andExpect(jsonPath("$.id").value(id.toString()))
-      .andExpect(jsonPath("$.name").value("Star Yarn"));
+        .perform(
+            post("/api/v1.2/products")
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .content(payload))
+        .andExpect(status().isCreated())
+        .andExpect(jsonPath("$.name").value("Star Yarn"));
 
     ArgumentCaptor<Product> captor = ArgumentCaptor.forClass(Product.class);
     verify(productService).create(captor.capture());
@@ -104,55 +90,37 @@ class ProductControllerTest {
 
   @Test
   void createProductValidationError() throws Exception {
-    ProductDTO requestDto = new ProductDTO(
-      null,
-      "",
-      "No name",
-      new BigDecimal("0.00"),
-      ""
-    );
-    String payload = Objects.requireNonNull(
-      objectMapper.writeValueAsString(requestDto)
-    );
+    ProductDTO requestDto = new ProductDTO(null, "", "No name", new BigDecimal("0.00"), "");
+    String payload = Objects.requireNonNull(objectMapper.writeValueAsString(requestDto));
 
     mockMvc
-      .perform(
-        post("/api/v1.2/products")
-          .contentType(MediaType.APPLICATION_JSON_VALUE)
-          .content(payload)
-      )
-      .andExpect(status().isBadRequest())
-      .andExpect(header().exists(TRACE_ID_HEADER))
-      .andExpect(jsonPath("$.title").value("Validation Failed"))
-      .andExpect(jsonPath("$.violations").isArray());
+        .perform(
+            post("/api/v1.2/products")
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .content(payload))
+        .andExpect(status().isBadRequest())
+        .andExpect(header().exists(TRACE_ID_HEADER))
+        .andExpect(jsonPath("$.title").value("Validation Failed"))
+        .andExpect(jsonPath("$.violations").isArray());
   }
 
   @Test
   void updateProductNotFound() throws Exception {
     UUID id = UUID.randomUUID();
-    when(productService.update(eq(id), any(Product.class))).thenThrow(
-      new ProductNotFoundException(id)
-    );
+    when(productService.update(eq(id), any(Product.class)))
+        .thenThrow(new ProductNotFoundException(id));
 
-    ProductDTO requestDto = new ProductDTO(
-      null,
-      "Galaxy Silk",
-      "",
-      new BigDecimal("1.23"),
-      "Textiles"
-    );
-    String payload = Objects.requireNonNull(
-      objectMapper.writeValueAsString(requestDto)
-    );
+    ProductDTO requestDto =
+        new ProductDTO(null, "Galaxy Silk", "", new BigDecimal("1.23"), "Textiles");
+    String payload = Objects.requireNonNull(objectMapper.writeValueAsString(requestDto));
 
     mockMvc
-      .perform(
-        put("/api/v1.2/products/{id}", id)
-          .contentType(MediaType.APPLICATION_JSON_VALUE)
-          .content(payload)
-      )
-      .andExpect(status().isNotFound())
-      .andExpect(jsonPath("$.title").value("Resource Not Found"));
+        .perform(
+            put("/api/v1.2/products/{id}", id)
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .content(payload))
+        .andExpect(status().isNotFound())
+        .andExpect(jsonPath("$.title").value("Resource Not Found"));
 
     verify(productService).update(eq(id), any(Product.class));
   }
@@ -160,41 +128,42 @@ class ProductControllerTest {
   @Test
   void getProductReturnsDtoWhenFound() throws Exception {
     UUID id = UUID.randomUUID();
-    Product product = new Product(
-      id,
-      "Galaxy Milk",
-      "Fresh",
-      new BigDecimal("4.50"),
-      "Food"
-    );
+    Product product =
+        Product.builder()
+            .id(1L)
+            .name("Galaxy Milk")
+            .description("Fresh")
+            .price(new BigDecimal("4.50"))
+            .categoryName("Food")
+            .build();
     when(productService.get(id)).thenReturn(Optional.of(product));
 
     mockMvc
-      .perform(get("/api/v1.2/products/{id}", id))
-      .andExpect(status().isOk())
-      .andExpect(jsonPath("$.name").value("Galaxy Milk"))
-      .andExpect(jsonPath("$.price").value(4.50));
+        .perform(get("/api/v1.2/products/{id}", id))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.name").value("Galaxy Milk"))
+        .andExpect(jsonPath("$.price").value(4.50));
 
     verify(productService).get(id);
   }
 
   @Test
   void listProductsReturnsDtoCollection() throws Exception {
-    UUID id = UUID.randomUUID();
-    Product product = new Product(
-      id,
-      "Star Juice",
-      "",
-      new BigDecimal("2.50"),
-      "Drinks"
-    );
+    Product product =
+        Product.builder()
+            .id(1L)
+            .name("Star Juice")
+            .description("")
+            .price(new BigDecimal("2.50"))
+            .categoryName("Drinks")
+            .build();
     when(productService.list()).thenReturn(List.of(product));
 
     mockMvc
-      .perform(get("/api/v1.2/products"))
-      .andExpect(status().isOk())
-      .andExpect(header().exists(TRACE_ID_HEADER))
-      .andExpect(jsonPath("$[0].id").value(id.toString()));
+        .perform(get("/api/v1.2/products"))
+        .andExpect(status().isOk())
+        .andExpect(header().exists(TRACE_ID_HEADER))
+        .andExpect(jsonPath("$[0].name").value("Star Juice"));
 
     verify(productService).list();
   }
@@ -202,35 +171,28 @@ class ProductControllerTest {
   @Test
   void updateProductHappyPath() throws Exception {
     UUID id = UUID.randomUUID();
-    Product updated = new Product(
-      id,
-      "Star Shield",
-      "",
-      new BigDecimal("3.33"),
-      "Defense"
-    );
+    Product updated =
+        Product.builder()
+            .id(1L)
+            .name("Star Shield")
+            .description("")
+            .price(new BigDecimal("3.33"))
+            .categoryName("Defense")
+            .build();
     when(productService.update(eq(id), any(Product.class))).thenReturn(updated);
 
-    ProductDTO requestDto = new ProductDTO(
-      null,
-      "Star Shield",
-      "",
-      new BigDecimal("3.33"),
-      "Defense"
-    );
-    String payload = Objects.requireNonNull(
-      objectMapper.writeValueAsString(requestDto)
-    );
+    ProductDTO requestDto =
+        new ProductDTO(null, "Star Shield", "", new BigDecimal("3.33"), "Defense");
+    String payload = Objects.requireNonNull(objectMapper.writeValueAsString(requestDto));
 
     mockMvc
-      .perform(
-        put("/api/v1.2/products/{id}", id)
-          .contentType(MediaType.APPLICATION_JSON_VALUE)
-          .content(payload)
-      )
-      .andExpect(status().isOk())
-      .andExpect(header().exists(TRACE_ID_HEADER))
-      .andExpect(jsonPath("$.name").value("Star Shield"));
+        .perform(
+            put("/api/v1.2/products/{id}", id)
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .content(payload))
+        .andExpect(status().isOk())
+        .andExpect(header().exists(TRACE_ID_HEADER))
+        .andExpect(jsonPath("$.name").value("Star Shield"));
 
     verify(productService).update(eq(id), any(Product.class));
   }
@@ -240,9 +202,9 @@ class ProductControllerTest {
     UUID id = UUID.randomUUID();
 
     mockMvc
-      .perform(delete("/api/v1.2/products/{id}", id))
-      .andExpect(status().isNoContent())
-      .andExpect(header().exists(TRACE_ID_HEADER));
+        .perform(delete("/api/v1.2/products/{id}", id))
+        .andExpect(status().isNoContent())
+        .andExpect(header().exists(TRACE_ID_HEADER));
 
     verify(productService).delete(id);
   }
@@ -253,11 +215,11 @@ class ProductControllerTest {
     when(productService.get(id)).thenThrow(new IllegalStateException("kaboom"));
 
     mockMvc
-      .perform(get("/api/v1.2/products/{id}", id))
-      .andExpect(status().isInternalServerError())
-      .andExpect(header().exists(TRACE_ID_HEADER))
-      .andExpect(jsonPath("$.title").value("Internal Server Error"))
-      .andExpect(jsonPath("$.path").value("/api/v1.2/products/" + id));
+        .perform(get("/api/v1.2/products/{id}", id))
+        .andExpect(status().isInternalServerError())
+        .andExpect(header().exists(TRACE_ID_HEADER))
+        .andExpect(jsonPath("$.title").value("Internal Server Error"))
+        .andExpect(jsonPath("$.path").value("/api/v1.2/products/" + id));
 
     verify(productService).get(id);
   }

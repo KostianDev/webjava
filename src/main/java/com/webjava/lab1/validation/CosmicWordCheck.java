@@ -11,7 +11,7 @@ import java.lang.annotation.Target;
 
 @Documented
 @Constraint(validatedBy = CosmicWordValidator.class)
-@Target({ FIELD })
+@Target({FIELD})
 @Retention(RUNTIME)
 public @interface CosmicWordCheck {
   String message() default "must contain a cosmic word (star, galaxy, comet)";

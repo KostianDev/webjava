@@ -12,23 +12,19 @@ public class SupplierClient {
 
   private final RestClient restClient;
 
-  public SupplierClient(
-    @Value("${supplier.base-url:http://localhost:8089}") String baseUrl
-  ) {
-    String url = java.util.Objects.requireNonNull(
-      baseUrl,
-      "supplier.base-url must not be null"
-    );
+  public SupplierClient(@Value("${supplier.base-url:http://localhost:8089}") String baseUrl) {
+    String url = java.util.Objects.requireNonNull(baseUrl, "supplier.base-url must not be null");
     this.restClient = RestClient.builder().baseUrl(url).build();
   }
 
   public List<SupplierProductDTO> getProducts() {
-    SupplierProductDTO[] arr = restClient
-      .get()
-      .uri("/api/supplier/products")
-      .accept(MediaType.APPLICATION_JSON)
-      .retrieve()
-      .body(SupplierProductDTO[].class);
+    SupplierProductDTO[] arr =
+        restClient
+            .get()
+            .uri("/api/supplier/products")
+            .accept(MediaType.APPLICATION_JSON)
+            .retrieve()
+            .body(SupplierProductDTO[].class);
     return Arrays.asList(arr != null ? arr : new SupplierProductDTO[0]);
   }
 }

@@ -1,0 +1,16 @@
+databaseChangeLog:
+  - changeSet:
+      id: 006-alter-sequences-increment
+      author: kostia
+      comment: Update sequence increment to 50 for better batch insert performance
+      changes:
+        - sql:
+            sql: ALTER SEQUENCE categories_id_seq INCREMENT BY 50
+        - sql:
+            sql: ALTER SEQUENCE products_id_seq INCREMENT BY 50
+        - sql:
+            sql: ALTER SEQUENCE users_id_seq INCREMENT BY 50
+        - sql:
+            sql: ALTER SEQUENCE orders_id_seq INCREMENT BY 50
+        - sql:
+            sql: ALTER SEQUENCE order_items_id_seq INCREMENT BY 50

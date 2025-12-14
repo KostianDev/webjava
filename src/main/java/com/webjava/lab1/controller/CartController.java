@@ -6,7 +6,13 @@ import com.webjava.lab1.mapper.CartMapper;
 import com.webjava.lab1.service.CartService;
 import java.util.UUID;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("${api.prefix:/api/v1.2}/carts")
@@ -29,9 +35,9 @@ public class CartController {
   @GetMapping("/{id}")
   public ResponseEntity<CartDTO> get(@PathVariable UUID id) {
     return service
-      .get(id)
-      .map(c -> ResponseEntity.ok(mapper.toDto(c)))
-      .orElseGet(() -> ResponseEntity.notFound().build());
+        .get(id)
+        .map(c -> ResponseEntity.ok(mapper.toDto(c)))
+        .orElseGet(() -> ResponseEntity.notFound().build());
   }
 
   @DeleteMapping("/{id}")

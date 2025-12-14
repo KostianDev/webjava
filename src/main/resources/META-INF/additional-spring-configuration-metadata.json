@@ -11,6 +11,18 @@
       "type": "java.lang.String",
       "description": "Global API prefix applied to REST controller mappings.",
       "defaultValue": "/api/v1.2"
+    },
+    {
+      "name": "feature.cosmoCats.enabled",
+      "type": "java.lang.Boolean",
+      "description": "Enable or disable Cosmo Cats feature toggle.",
+      "defaultValue": true
+    },
+    {
+      "name": "feature.kittyProducts.enabled",
+      "type": "java.lang.Boolean",
+      "description": "Enable or disable Kitty Products feature toggle.",
+      "defaultValue": true
     }
   ]
 }

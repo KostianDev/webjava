@@ -10,7 +10,14 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("${api.prefix:/api/v1.2}/products")
@@ -32,26 +39,20 @@ public class ProductController {
 
   @GetMapping
   public List<ProductDTO> list() {
-    return service
-      .list()
-      .stream()
-      .map(mapper::toDto)
-      .collect(Collectors.toList());
+    return service.list().stream().map(mapper::toDto).collect(Collectors.toList());
   }
 
   @GetMapping("/{id}")
   public ResponseEntity<ProductDTO> get(@PathVariable UUID id) {
     return service
-      .get(id)
-      .map(p -> ResponseEntity.ok(mapper.toDto(p)))
-      .orElseGet(() -> ResponseEntity.notFound().build());
+        .get(id)
+        .map(p -> ResponseEntity.ok(mapper.toDto(p)))
+        .orElseGet(() -> ResponseEntity.notFound().build());
   }
 
   @PutMapping("/{id}")
   public ResponseEntity<ProductDTO> update(
-    @PathVariable UUID id,
-    @Valid @RequestBody ProductDTO dto
-  ) {
+      @PathVariable UUID id, @Valid @RequestBody ProductDTO dto) {
     Product updated = service.update(id, mapper.toEntity(dto));
     return ResponseEntity.ok(mapper.toDto(updated));
   }
