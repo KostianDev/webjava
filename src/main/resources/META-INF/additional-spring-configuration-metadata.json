@@ -23,6 +23,23 @@
       "type": "java.lang.Boolean",
       "description": "Enable or disable Kitty Products feature toggle.",
       "defaultValue": true
+    },
+    {
+      "name": "security.api-key.enabled",
+      "type": "java.lang.Boolean",
+      "description": "Enable or disable API Key authentication.",
+      "defaultValue": false
+    },
+    {
+      "name": "security.api-key.header-name",
+      "type": "java.lang.String",
+      "description": "HTTP header name for API Key.",
+      "defaultValue": "X-API-Key"
+    },
+    {
+      "name": "security.api-key.valid-keys",
+      "type": "java.util.List",
+      "description": "List of valid API keys for authentication."
     }
   ]
 }

@@ -1,5 +1,7 @@
 package com.webjava.lab1.config;
 
+import com.webjava.lab1.security.ApiKeyAuthenticationFilter;
+import com.webjava.lab1.security.ApiKeyProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
@@ -9,6 +11,7 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.oauth2.server.resource.web.authentication.BearerTokenAuthenticationFilter;
 import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
@@ -16,6 +19,12 @@ import org.springframework.security.web.SecurityFilterChain;
 @EnableMethodSecurity
 @Profile("!no-auth")
 public class SecurityConfig {
+
+  private final ApiKeyProperties apiKeyProperties;
+
+  public SecurityConfig(ApiKeyProperties apiKeyProperties) {
+    this.apiKeyProperties = apiKeyProperties;
+  }
 
   @Bean
   public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -46,7 +55,10 @@ public class SecurityConfig {
                     // All other requests require authentication
                     .anyRequest()
                     .authenticated())
-        .oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults()));
+        .oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults()))
+        .addFilterBefore(
+            new ApiKeyAuthenticationFilter(apiKeyProperties),
+            BearerTokenAuthenticationFilter.class);
 
     return http.build();
   }
