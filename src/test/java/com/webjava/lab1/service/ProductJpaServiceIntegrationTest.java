@@ -4,8 +4,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.webjava.lab1.AbstractIntegrationTest;
+import com.webjava.lab1.domain.Product;
 import com.webjava.lab1.entity.CategoryEntity;
-import com.webjava.lab1.entity.ProductEntity;
 import com.webjava.lab1.projection.ProductSummary;
 import com.webjava.lab1.repository.CategoryRepository;
 import com.webjava.lab1.repository.ProductRepository;
@@ -40,27 +40,32 @@ class ProductJpaServiceIntegrationTest extends AbstractIntegrationTest {
   @Test
   @DisplayName("Should create product")
   void shouldCreateProduct() {
-    ProductEntity product =
-        ProductEntity.builder()
+    Product product =
+        Product.builder()
             .name("Space Helmet")
             .description("Protective helmet")
             .price(BigDecimal.valueOf(299.99))
+            .categoryId(category.getId())
             .build();
 
-    ProductEntity saved = productJpaService.create(product, category.getId());
+    Product saved = productJpaService.create(product);
 
     assertThat(saved.getId()).isNotNull();
     assertThat(saved.getName()).isEqualTo("Space Helmet");
-    assertThat(saved.getCategory().getName()).isEqualTo("Space Gear");
+    assertThat(saved.getCategoryName()).isEqualTo("Space Gear");
   }
 
   @Test
   @DisplayName("Should throw when creating product with non-existent category")
   void shouldThrowWhenCategoryNotFound() {
-    ProductEntity product =
-        ProductEntity.builder().name("Test Product").price(BigDecimal.valueOf(100)).build();
+    Product product =
+        Product.builder()
+            .name("Test Product")
+            .price(BigDecimal.valueOf(100))
+            .categoryId(999L)
+            .build();
 
-    assertThatThrownBy(() -> productJpaService.create(product, 999L))
+    assertThatThrownBy(() -> productJpaService.create(product))
         .isInstanceOf(EntityNotFoundException.class)
         .hasMessageContaining("Category")
         .hasMessageContaining("999");
@@ -70,11 +75,17 @@ class ProductJpaServiceIntegrationTest extends AbstractIntegrationTest {
   @DisplayName("Should find all products")
   void shouldFindAllProducts() {
     productJpaService.create(
-        ProductEntity.builder().name("Product 1").price(BigDecimal.valueOf(100)).build(),
-        category.getId());
+        Product.builder()
+            .name("Product 1")
+            .price(BigDecimal.valueOf(100))
+            .categoryId(category.getId())
+            .build());
     productJpaService.create(
-        ProductEntity.builder().name("Product 2").price(BigDecimal.valueOf(200)).build(),
-        category.getId());
+        Product.builder()
+            .name("Product 2")
+            .price(BigDecimal.valueOf(200))
+            .categoryId(category.getId())
+            .build());
 
     assertThat(productJpaService.findAll()).hasSize(2);
   }
@@ -82,10 +93,13 @@ class ProductJpaServiceIntegrationTest extends AbstractIntegrationTest {
   @Test
   @DisplayName("Should find product by id")
   void shouldFindProductById() {
-    ProductEntity saved =
+    Product saved =
         productJpaService.create(
-            ProductEntity.builder().name("Unique Product").price(BigDecimal.valueOf(150)).build(),
-            category.getId());
+            Product.builder()
+                .name("Unique Product")
+                .price(BigDecimal.valueOf(150))
+                .categoryId(category.getId())
+                .build());
 
     assertThat(productJpaService.findById(saved.getId()))
         .isPresent()
@@ -105,13 +119,19 @@ class ProductJpaServiceIntegrationTest extends AbstractIntegrationTest {
         categoryRepository.save(CategoryEntity.builder().name("Other Category").build());
 
     productJpaService.create(
-        ProductEntity.builder().name("In Category").price(BigDecimal.valueOf(100)).build(),
-        category.getId());
+        Product.builder()
+            .name("In Category")
+            .price(BigDecimal.valueOf(100))
+            .categoryId(category.getId())
+            .build());
     productJpaService.create(
-        ProductEntity.builder().name("Other").price(BigDecimal.valueOf(100)).build(),
-        otherCategory.getId());
+        Product.builder()
+            .name("Other")
+            .price(BigDecimal.valueOf(100))
+            .categoryId(otherCategory.getId())
+            .build());
 
-    List<ProductEntity> products = productJpaService.findByCategory(category.getId());
+    List<Product> products = productJpaService.findByCategory(category.getId());
 
     assertThat(products).hasSize(1);
     assertThat(products.get(0).getName()).isEqualTo("In Category");
@@ -121,20 +141,29 @@ class ProductJpaServiceIntegrationTest extends AbstractIntegrationTest {
   @DisplayName("Should search products by name")
   void shouldSearchProductsByName() {
     productJpaService.create(
-        ProductEntity.builder().name("Space Laser").price(BigDecimal.valueOf(500)).build(),
-        category.getId());
+        Product.builder()
+            .name("Space Laser")
+            .price(BigDecimal.valueOf(500))
+            .categoryId(category.getId())
+            .build());
     productJpaService.create(
-        ProductEntity.builder().name("Space Suit").price(BigDecimal.valueOf(300)).build(),
-        category.getId());
+        Product.builder()
+            .name("Space Suit")
+            .price(BigDecimal.valueOf(300))
+            .categoryId(category.getId())
+            .build());
     productJpaService.create(
-        ProductEntity.builder().name("Helmet").price(BigDecimal.valueOf(100)).build(),
-        category.getId());
+        Product.builder()
+            .name("Helmet")
+            .price(BigDecimal.valueOf(100))
+            .categoryId(category.getId())
+            .build());
 
-    List<ProductEntity> results = productJpaService.searchByName("space");
+    List<Product> results = productJpaService.searchByName("space");
 
     assertThat(results).hasSize(2);
     assertThat(results)
-        .extracting(ProductEntity::getName)
+        .extracting(Product::getName)
         .containsExactlyInAnyOrder("Space Laser", "Space Suit");
   }
 
@@ -142,16 +171,25 @@ class ProductJpaServiceIntegrationTest extends AbstractIntegrationTest {
   @DisplayName("Should find products by price range")
   void shouldFindProductsByPriceRange() {
     productJpaService.create(
-        ProductEntity.builder().name("Cheap").price(BigDecimal.valueOf(50)).build(),
-        category.getId());
+        Product.builder()
+            .name("Cheap")
+            .price(BigDecimal.valueOf(50))
+            .categoryId(category.getId())
+            .build());
     productJpaService.create(
-        ProductEntity.builder().name("Medium").price(BigDecimal.valueOf(150)).build(),
-        category.getId());
+        Product.builder()
+            .name("Medium")
+            .price(BigDecimal.valueOf(150))
+            .categoryId(category.getId())
+            .build());
     productJpaService.create(
-        ProductEntity.builder().name("Expensive").price(BigDecimal.valueOf(500)).build(),
-        category.getId());
+        Product.builder()
+            .name("Expensive")
+            .price(BigDecimal.valueOf(500))
+            .categoryId(category.getId())
+            .build());
 
-    List<ProductEntity> results =
+    List<Product> results =
         productJpaService.findByPriceRange(BigDecimal.valueOf(100), BigDecimal.valueOf(200));
 
     assertThat(results).hasSize(1);
@@ -162,11 +200,17 @@ class ProductJpaServiceIntegrationTest extends AbstractIntegrationTest {
   @DisplayName("Should find affordable products using projection")
   void shouldFindAffordableProducts() {
     productJpaService.create(
-        ProductEntity.builder().name("Affordable Item").price(BigDecimal.valueOf(30)).build(),
-        category.getId());
+        Product.builder()
+            .name("Affordable Item")
+            .price(BigDecimal.valueOf(30))
+            .categoryId(category.getId())
+            .build());
     productJpaService.create(
-        ProductEntity.builder().name("Expensive Item").price(BigDecimal.valueOf(200)).build(),
-        category.getId());
+        Product.builder()
+            .name("Expensive Item")
+            .price(BigDecimal.valueOf(200))
+            .categoryId(category.getId())
+            .build());
 
     List<ProductSummary> results = productJpaService.getAffordableProducts(BigDecimal.valueOf(50));
 
@@ -178,23 +222,24 @@ class ProductJpaServiceIntegrationTest extends AbstractIntegrationTest {
   @Test
   @DisplayName("Should update product")
   void shouldUpdateProduct() {
-    ProductEntity saved =
+    Product saved =
         productJpaService.create(
-            ProductEntity.builder()
+            Product.builder()
                 .name("Original Name")
                 .description("Original desc")
                 .price(BigDecimal.valueOf(100))
-                .build(),
-            category.getId());
+                .categoryId(category.getId())
+                .build());
 
-    ProductEntity updateData =
-        ProductEntity.builder()
+    Product updateData =
+        Product.builder()
             .name("Updated Name")
             .description("Updated desc")
             .price(BigDecimal.valueOf(150))
+            .categoryId(category.getId())
             .build();
 
-    ProductEntity updated = productJpaService.update(saved.getId(), updateData, category.getId());
+    Product updated = productJpaService.update(saved.getId(), updateData);
 
     assertThat(updated.getName()).isEqualTo("Updated Name");
     assertThat(updated.getDescription()).isEqualTo("Updated desc");
@@ -207,18 +252,24 @@ class ProductJpaServiceIntegrationTest extends AbstractIntegrationTest {
     CategoryEntity newCategory =
         categoryRepository.save(CategoryEntity.builder().name("New Category").build());
 
-    ProductEntity saved =
+    Product saved =
         productJpaService.create(
-            ProductEntity.builder().name("Product").price(BigDecimal.valueOf(100)).build(),
-            category.getId());
+            Product.builder()
+                .name("Product")
+                .price(BigDecimal.valueOf(100))
+                .categoryId(category.getId())
+                .build());
 
-    ProductEntity updated =
+    Product updated =
         productJpaService.update(
             saved.getId(),
-            ProductEntity.builder().name("Product").price(BigDecimal.valueOf(100)).build(),
-            newCategory.getId());
+            Product.builder()
+                .name("Product")
+                .price(BigDecimal.valueOf(100))
+                .categoryId(newCategory.getId())
+                .build());
 
-    assertThat(updated.getCategory().getName()).isEqualTo("New Category");
+    assertThat(updated.getCategoryName()).isEqualTo("New Category");
   }
 
   @Test
@@ -228,8 +279,11 @@ class ProductJpaServiceIntegrationTest extends AbstractIntegrationTest {
             () ->
                 productJpaService.update(
                     999L,
-                    ProductEntity.builder().name("Test").price(BigDecimal.TEN).build(),
-                    category.getId()))
+                    Product.builder()
+                        .name("Test")
+                        .price(BigDecimal.TEN)
+                        .categoryId(category.getId())
+                        .build()))
         .isInstanceOf(EntityNotFoundException.class)
         .hasMessageContaining("Product")
         .hasMessageContaining("999");
@@ -238,10 +292,13 @@ class ProductJpaServiceIntegrationTest extends AbstractIntegrationTest {
   @Test
   @DisplayName("Should delete product")
   void shouldDeleteProduct() {
-    ProductEntity saved =
+    Product saved =
         productJpaService.create(
-            ProductEntity.builder().name("To Delete").price(BigDecimal.valueOf(100)).build(),
-            category.getId());
+            Product.builder()
+                .name("To Delete")
+                .price(BigDecimal.valueOf(100))
+                .categoryId(category.getId())
+                .build());
 
     productJpaService.delete(saved.getId());
 
@@ -262,7 +319,7 @@ class ProductJpaServiceIntegrationTest extends AbstractIntegrationTest {
     assertThatThrownBy(
             () ->
                 productJpaService.create(
-                    ProductEntity.builder().name("Test").price(BigDecimal.TEN).build(), null))
+                    Product.builder().name("Test").price(BigDecimal.TEN).categoryId(null).build()))
         .isInstanceOf(NullPointerException.class)
         .hasMessageContaining("must not be null");
   }

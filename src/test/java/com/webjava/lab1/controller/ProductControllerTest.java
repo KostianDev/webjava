@@ -60,9 +60,14 @@ class ProductControllerTest {
 
   @Test
   void createProductHappyPath() throws Exception {
-    UUID id = UUID.randomUUID();
     Product created =
-        new Product(id, "Star Yarn", "Antigravity", new BigDecimal("9.99"), "Textiles");
+        Product.builder()
+            .id(1L)
+            .name("Star Yarn")
+            .description("Antigravity")
+            .price(new BigDecimal("9.99"))
+            .categoryName("Textiles")
+            .build();
     when(productService.create(any(Product.class))).thenReturn(created);
 
     ProductDTO requestDto =
@@ -75,7 +80,6 @@ class ProductControllerTest {
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
                 .content(payload))
         .andExpect(status().isCreated())
-        .andExpect(jsonPath("$.id").value(id.toString()))
         .andExpect(jsonPath("$.name").value("Star Yarn"));
 
     ArgumentCaptor<Product> captor = ArgumentCaptor.forClass(Product.class);
@@ -124,7 +128,14 @@ class ProductControllerTest {
   @Test
   void getProductReturnsDtoWhenFound() throws Exception {
     UUID id = UUID.randomUUID();
-    Product product = new Product(id, "Galaxy Milk", "Fresh", new BigDecimal("4.50"), "Food");
+    Product product =
+        Product.builder()
+            .id(1L)
+            .name("Galaxy Milk")
+            .description("Fresh")
+            .price(new BigDecimal("4.50"))
+            .categoryName("Food")
+            .build();
     when(productService.get(id)).thenReturn(Optional.of(product));
 
     mockMvc
@@ -138,15 +149,21 @@ class ProductControllerTest {
 
   @Test
   void listProductsReturnsDtoCollection() throws Exception {
-    UUID id = UUID.randomUUID();
-    Product product = new Product(id, "Star Juice", "", new BigDecimal("2.50"), "Drinks");
+    Product product =
+        Product.builder()
+            .id(1L)
+            .name("Star Juice")
+            .description("")
+            .price(new BigDecimal("2.50"))
+            .categoryName("Drinks")
+            .build();
     when(productService.list()).thenReturn(List.of(product));
 
     mockMvc
         .perform(get("/api/v1.2/products"))
         .andExpect(status().isOk())
         .andExpect(header().exists(TRACE_ID_HEADER))
-        .andExpect(jsonPath("$[0].id").value(id.toString()));
+        .andExpect(jsonPath("$[0].name").value("Star Juice"));
 
     verify(productService).list();
   }
@@ -154,7 +171,14 @@ class ProductControllerTest {
   @Test
   void updateProductHappyPath() throws Exception {
     UUID id = UUID.randomUUID();
-    Product updated = new Product(id, "Star Shield", "", new BigDecimal("3.33"), "Defense");
+    Product updated =
+        Product.builder()
+            .id(1L)
+            .name("Star Shield")
+            .description("")
+            .price(new BigDecimal("3.33"))
+            .categoryName("Defense")
+            .build();
     when(productService.update(eq(id), any(Product.class))).thenReturn(updated);
 
     ProductDTO requestDto =

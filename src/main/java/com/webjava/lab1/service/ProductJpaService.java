@@ -1,7 +1,9 @@
 package com.webjava.lab1.service;
 
+import com.webjava.lab1.domain.Product;
 import com.webjava.lab1.entity.CategoryEntity;
 import com.webjava.lab1.entity.ProductEntity;
+import com.webjava.lab1.mapper.ProductEntityMapper;
 import com.webjava.lab1.projection.ProductSalesReport;
 import com.webjava.lab1.projection.ProductSummary;
 import com.webjava.lab1.repository.CategoryRepository;
@@ -10,6 +12,7 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,52 +21,64 @@ public class ProductJpaService {
 
   private final ProductRepository productRepository;
   private final CategoryRepository categoryRepository;
+  private final ProductEntityMapper mapper;
 
   public ProductJpaService(
-      ProductRepository productRepository, CategoryRepository categoryRepository) {
+      ProductRepository productRepository,
+      CategoryRepository categoryRepository,
+      ProductEntityMapper mapper) {
     this.productRepository = productRepository;
     this.categoryRepository = categoryRepository;
+    this.mapper = mapper;
   }
 
   @Transactional
-  public ProductEntity create(ProductEntity product, Long categoryId) {
-    Objects.requireNonNull(categoryId, "categoryId must not be null");
+  public Product create(Product product) {
+    Long categoryId =
+        Objects.requireNonNull(product.getCategoryId(), "categoryId must not be null");
     CategoryEntity category =
         categoryRepository
             .findById(categoryId)
             .orElseThrow(() -> new EntityNotFoundException("Category", categoryId));
-    product.setCategory(category);
-    return productRepository.save(product);
+    ProductEntity entity = mapper.toEntity(product, category);
+    ProductEntity saved = productRepository.save(entity);
+    return mapper.toDomain(saved);
   }
 
   @Transactional(readOnly = true)
-  public List<ProductEntity> findAll() {
-    return productRepository.findAll();
+  public List<Product> findAll() {
+    return productRepository.findAll().stream().map(mapper::toDomain).collect(Collectors.toList());
   }
 
   @Transactional(readOnly = true)
-  public Optional<ProductEntity> findById(Long id) {
+  public Optional<Product> findById(Long id) {
     Objects.requireNonNull(id, "id must not be null");
-    return productRepository.findById(id);
+    return productRepository.findById(id).map(mapper::toDomain);
   }
 
   @Transactional(readOnly = true)
-  public List<ProductEntity> findByCategory(Long categoryId) {
-    return productRepository.findByCategoryId(categoryId);
+  public List<Product> findByCategory(Long categoryId) {
+    return productRepository.findByCategoryId(categoryId).stream()
+        .map(mapper::toDomain)
+        .collect(Collectors.toList());
   }
 
   @Transactional(readOnly = true)
-  public List<ProductEntity> searchByName(String name) {
-    return productRepository.findByNameContainingIgnoreCase(name);
+  public List<Product> searchByName(String name) {
+    return productRepository.findByNameContainingIgnoreCase(name).stream()
+        .map(mapper::toDomain)
+        .collect(Collectors.toList());
   }
 
   @Transactional(readOnly = true)
-  public List<ProductEntity> findByPriceRange(BigDecimal minPrice, BigDecimal maxPrice) {
-    return productRepository.findByPriceRange(minPrice, maxPrice);
+  public List<Product> findByPriceRange(BigDecimal minPrice, BigDecimal maxPrice) {
+    return productRepository.findByPriceRange(minPrice, maxPrice).stream()
+        .map(mapper::toDomain)
+        .collect(Collectors.toList());
   }
 
   @Transactional
-  public ProductEntity update(Long id, ProductEntity product, Long categoryId) {
+  public Product update(Long id, Product product) {
     Objects.requireNonNull(id, "id must not be null");
     ProductEntity existing =
         productRepository
@@ -74,6 +89,7 @@ public class ProductJpaService {
     existing.setDescription(product.getDescription());
     existing.setPrice(product.getPrice());
 
+    Long categoryId = product.getCategoryId();
     if (categoryId != null && !categoryId.equals(existing.getCategory().getId())) {
       CategoryEntity category =
           categoryRepository
@@ -82,7 +98,8 @@ public class ProductJpaService {
       existing.setCategory(category);
     }
 
-    return productRepository.save(existing);
+    ProductEntity saved = productRepository.save(existing);
+    return mapper.toDomain(saved);
   }
 
   @Transactional

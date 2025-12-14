@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.webjava.lab1.AbstractIntegrationTest;
+import com.webjava.lab1.domain.Order;
 import com.webjava.lab1.entity.CategoryEntity;
 import com.webjava.lab1.entity.OrderEntity;
 import com.webjava.lab1.entity.ProductEntity;
@@ -75,7 +76,7 @@ class OrderJpaServiceIntegrationTest extends AbstractIntegrationTest {
         List.of(
             new OrderItemRequest(product1.getId(), 2), new OrderItemRequest(product2.getId(), 3));
 
-    OrderEntity order = orderJpaService.create(user.getId(), items);
+    Order order = orderJpaService.create(user.getId(), items);
     entityManager.flush();
     entityManager.clear();
 
@@ -124,7 +125,7 @@ class OrderJpaServiceIntegrationTest extends AbstractIntegrationTest {
   @Test
   @DisplayName("Should find order by id")
   void shouldFindOrderById() {
-    OrderEntity created =
+    Order created =
         orderJpaService.create(user.getId(), List.of(new OrderItemRequest(product1.getId(), 1)));
 
     assertThat(orderJpaService.findById(created.getId()))
@@ -145,7 +146,7 @@ class OrderJpaServiceIntegrationTest extends AbstractIntegrationTest {
   @Test
   @DisplayName("Should find order by order number (Natural ID)")
   void shouldFindOrderByOrderNumber() {
-    OrderEntity created =
+    Order created =
         orderJpaService.create(user.getId(), List.of(new OrderItemRequest(product1.getId(), 1)));
 
     assertThat(orderJpaService.findByOrderNumber(created.getOrderNumber()))
@@ -170,10 +171,10 @@ class OrderJpaServiceIntegrationTest extends AbstractIntegrationTest {
     orderJpaService.create(user.getId(), List.of(new OrderItemRequest(product2.getId(), 1)));
     orderJpaService.create(anotherUser.getId(), List.of(new OrderItemRequest(product1.getId(), 1)));
 
-    List<OrderEntity> userOrders = orderJpaService.findByUser(user.getId());
+    List<Order> userOrders = orderJpaService.findByUser(user.getId());
 
     assertThat(userOrders).hasSize(2);
-    assertThat(userOrders).allMatch(o -> o.getUser().getId().equals(user.getId()));
+    assertThat(userOrders).allMatch(o -> o.getUserId().equals(user.getId()));
   }
 
   @Test
@@ -188,7 +189,7 @@ class OrderJpaServiceIntegrationTest extends AbstractIntegrationTest {
   @Test
   @DisplayName("Should delete order")
   void shouldDeleteOrder() {
-    OrderEntity created =
+    Order created =
         orderJpaService.create(user.getId(), List.of(new OrderItemRequest(product1.getId(), 1)));
 
     orderJpaService.delete(created.getId());
@@ -199,9 +200,9 @@ class OrderJpaServiceIntegrationTest extends AbstractIntegrationTest {
   @Test
   @DisplayName("Should generate unique order numbers")
   void shouldGenerateUniqueOrderNumbers() {
-    OrderEntity order1 =
+    Order order1 =
         orderJpaService.create(user.getId(), List.of(new OrderItemRequest(product1.getId(), 1)));
-    OrderEntity order2 =
+    Order order2 =
         orderJpaService.create(user.getId(), List.of(new OrderItemRequest(product1.getId(), 1)));
 
     assertThat(order1.getOrderNumber()).isNotEqualTo(order2.getOrderNumber());
@@ -234,7 +235,7 @@ class OrderJpaServiceIntegrationTest extends AbstractIntegrationTest {
             new OrderItemRequest(product2.getId(), 10) // 50 * 10 = 500
             );
 
-    OrderEntity order = orderJpaService.create(user.getId(), items);
+    Order order = orderJpaService.create(user.getId(), items);
 
     assertThat(order.getTotal()).isEqualByComparingTo("1000");
   }
@@ -242,7 +243,7 @@ class OrderJpaServiceIntegrationTest extends AbstractIntegrationTest {
   @Test
   @DisplayName("Should store correct price snapshot in order item")
   void shouldStorePriceSnapshotInOrderItem() {
-    OrderEntity order =
+    Order order =
         orderJpaService.create(user.getId(), List.of(new OrderItemRequest(product1.getId(), 1)));
 
     assertThat(order.getItems().get(0).getPrice()).isEqualByComparingTo(product1.getPrice());

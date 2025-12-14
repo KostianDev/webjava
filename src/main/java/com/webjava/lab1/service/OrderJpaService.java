@@ -1,9 +1,11 @@
 package com.webjava.lab1.service;
 
+import com.webjava.lab1.domain.Order;
 import com.webjava.lab1.entity.OrderEntity;
 import com.webjava.lab1.entity.OrderItemEntity;
 import com.webjava.lab1.entity.ProductEntity;
 import com.webjava.lab1.entity.UserEntity;
+import com.webjava.lab1.mapper.OrderEntityMapper;
 import com.webjava.lab1.repository.OrderRepository;
 import com.webjava.lab1.repository.ProductRepository;
 import com.webjava.lab1.repository.UserRepository;
@@ -12,6 +14,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,18 +24,21 @@ public class OrderJpaService {
   private final OrderRepository orderRepository;
   private final UserRepository userRepository;
   private final ProductRepository productRepository;
+  private final OrderEntityMapper mapper;
 
   public OrderJpaService(
       OrderRepository orderRepository,
       UserRepository userRepository,
-      ProductRepository productRepository) {
+      ProductRepository productRepository,
+      OrderEntityMapper mapper) {
     this.orderRepository = orderRepository;
     this.userRepository = userRepository;
     this.productRepository = productRepository;
+    this.mapper = mapper;
   }
 
   @Transactional
-  public OrderEntity create(Long userId, List<OrderItemRequest> itemRequests) {
+  public Order create(Long userId, List<OrderItemRequest> itemRequests) {
     Objects.requireNonNull(userId, "userId");
     UserEntity user =
         userRepository
@@ -67,29 +73,32 @@ public class OrderJpaService {
     }
 
     order.setTotal(total);
-    return orderRepository.save(order);
+    OrderEntity saved = orderRepository.save(order);
+    return mapper.toDomain(saved);
   }
 
   @Transactional(readOnly = true)
-  public List<OrderEntity> findAll() {
-    return orderRepository.findAll();
+  public List<Order> findAll() {
+    return orderRepository.findAll().stream().map(mapper::toDomain).collect(Collectors.toList());
   }
 
   @Transactional(readOnly = true)
-  public Optional<OrderEntity> findById(Long id) {
+  public Optional<Order> findById(Long id) {
     Objects.requireNonNull(id, "id must not be null");
-    return orderRepository.findById(id);
+    return orderRepository.findById(id).map(mapper::toDomain);
   }
 
   @Transactional(readOnly = true)
-  public Optional<OrderEntity> findByOrderNumber(String orderNumber) {
-    return orderRepository.findByOrderNumber(orderNumber);
+  public Optional<Order> findByOrderNumber(String orderNumber) {
+    return orderRepository.findByOrderNumber(orderNumber).map(mapper::toDomain);
   }
 
   @Transactional(readOnly = true)
-  public List<OrderEntity> findByUser(Long userId) {
+  public List<Order> findByUser(Long userId) {
     Objects.requireNonNull(userId, "userId must not be null");
-    return orderRepository.findByUserIdOrderByCreatedAtDesc(userId);
+    return orderRepository.findByUserIdOrderByCreatedAtDesc(userId).stream()
+        .map(mapper::toDomain)
+        .collect(Collectors.toList());
   }
 
   @Transactional
