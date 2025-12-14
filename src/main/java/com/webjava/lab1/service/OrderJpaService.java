@@ -9,9 +9,9 @@ import com.webjava.lab1.repository.ProductRepository;
 import com.webjava.lab1.repository.UserRepository;
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.Objects;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -35,7 +35,9 @@ public class OrderJpaService {
   public OrderEntity create(Long userId, List<OrderItemRequest> itemRequests) {
     Objects.requireNonNull(userId, "userId");
     UserEntity user =
-        userRepository.findById(userId).orElseThrow(() -> new EntityNotFoundException("User", userId));
+        userRepository
+            .findById(userId)
+            .orElseThrow(() -> new EntityNotFoundException("User", userId));
 
     OrderEntity order =
         OrderEntity.builder()

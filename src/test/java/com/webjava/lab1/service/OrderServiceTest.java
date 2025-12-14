@@ -47,11 +47,7 @@ class OrderServiceTest {
   }
 
   private Order sampleOrder() {
-    OrderItem item = new OrderItem(
-      UUID.randomUUID(),
-      2,
-      new BigDecimal("9.99")
-    );
+    OrderItem item = new OrderItem(UUID.randomUUID(), 2, new BigDecimal("9.99"));
     return new Order(null, List.of(item), new BigDecimal("19.98"));
   }
 }

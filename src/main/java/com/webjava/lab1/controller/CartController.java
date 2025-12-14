@@ -29,9 +29,9 @@ public class CartController {
   @GetMapping("/{id}")
   public ResponseEntity<CartDTO> get(@PathVariable UUID id) {
     return service
-      .get(id)
-      .map(c -> ResponseEntity.ok(mapper.toDto(c)))
-      .orElseGet(() -> ResponseEntity.notFound().build());
+        .get(id)
+        .map(c -> ResponseEntity.ok(mapper.toDto(c)))
+        .orElseGet(() -> ResponseEntity.notFound().build());
   }
 
   @DeleteMapping("/{id}")

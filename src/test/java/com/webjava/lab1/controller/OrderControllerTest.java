@@ -38,17 +38,14 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
 @WebMvcTest(OrderController.class)
-@Import({ TraceIdFilter.class, OrderControllerTest.TestConfig.class })
+@Import({TraceIdFilter.class, OrderControllerTest.TestConfig.class})
 class OrderControllerTest {
 
-  @Autowired
-  private MockMvc mockMvc;
+  @Autowired private MockMvc mockMvc;
 
-  @Autowired
-  private ObjectMapper objectMapper;
+  @Autowired private ObjectMapper objectMapper;
 
-  @Autowired
-  private OrderService orderService;
+  @Autowired private OrderService orderService;
 
   @AfterEach
   void resetMocks() {
@@ -59,41 +56,34 @@ class OrderControllerTest {
   void createOrderReturnsCreatedDto() throws Exception {
     UUID productId = UUID.randomUUID();
     UUID orderId = UUID.randomUUID();
-    OrderDTO requestDto = new OrderDTO(
-      null,
-      List.of(new OrderItemDTO(productId, 1, new BigDecimal("19.99"))),
-      new BigDecimal("19.99")
-    );
-    Order created = new Order(
-      orderId,
-      List.of(new OrderItem(productId, 1, new BigDecimal("19.99"))),
-      new BigDecimal("19.99")
-    );
+    OrderDTO requestDto =
+        new OrderDTO(
+            null,
+            List.of(new OrderItemDTO(productId, 1, new BigDecimal("19.99"))),
+            new BigDecimal("19.99"));
+    Order created =
+        new Order(
+            orderId,
+            List.of(new OrderItem(productId, 1, new BigDecimal("19.99"))),
+            new BigDecimal("19.99"));
 
     when(orderService.create(any(Order.class))).thenReturn(created);
 
-    String payload = Objects.requireNonNull(
-      objectMapper.writeValueAsString(requestDto)
-    );
+    String payload = Objects.requireNonNull(objectMapper.writeValueAsString(requestDto));
 
     mockMvc
-      .perform(
-        post("/api/v1.2/orders")
-          .contentType(MediaType.APPLICATION_JSON_VALUE)
-          .content(payload)
-      )
-      .andExpect(status().isCreated())
-      .andExpect(header().exists(TRACE_ID_HEADER))
-      .andExpect(jsonPath("$.id").value(orderId.toString()))
-      .andExpect(jsonPath("$.items[0].productId").value(productId.toString()));
+        .perform(
+            post("/api/v1.2/orders").contentType(MediaType.APPLICATION_JSON_VALUE).content(payload))
+        .andExpect(status().isCreated())
+        .andExpect(header().exists(TRACE_ID_HEADER))
+        .andExpect(jsonPath("$.id").value(orderId.toString()))
+        .andExpect(jsonPath("$.items[0].productId").value(productId.toString()));
 
     ArgumentCaptor<Order> captor = ArgumentCaptor.forClass(Order.class);
     verify(orderService).create(captor.capture());
     Order captured = captor.getValue();
     assertThat(captured.getItems()).hasSize(1);
-    assertThat(captured.getItems().getFirst().getProductId()).isEqualTo(
-      productId
-    );
+    assertThat(captured.getItems().getFirst().getProductId()).isEqualTo(productId);
     assertThat(captured.getItems().getFirst().getQuantity()).isEqualTo(1);
   }
 
@@ -101,20 +91,20 @@ class OrderControllerTest {
   void listOrdersReturnsMappedDtos() throws Exception {
     UUID orderId = UUID.randomUUID();
     UUID productId = UUID.randomUUID();
-    Order order = new Order(
-      orderId,
-      List.of(new OrderItem(productId, 2, new BigDecimal("10.00"))),
-      new BigDecimal("20.00")
-    );
+    Order order =
+        new Order(
+            orderId,
+            List.of(new OrderItem(productId, 2, new BigDecimal("10.00"))),
+            new BigDecimal("20.00"));
 
     when(orderService.list()).thenReturn(List.of(order));
 
     mockMvc
-      .perform(get("/api/v1.2/orders"))
-      .andExpect(status().isOk())
-      .andExpect(header().exists(TRACE_ID_HEADER))
-      .andExpect(jsonPath("$[0].id").value(orderId.toString()))
-      .andExpect(jsonPath("$[0].items[0].quantity").value(2));
+        .perform(get("/api/v1.2/orders"))
+        .andExpect(status().isOk())
+        .andExpect(header().exists(TRACE_ID_HEADER))
+        .andExpect(jsonPath("$[0].id").value(orderId.toString()))
+        .andExpect(jsonPath("$[0].items[0].quantity").value(2));
 
     verify(orderService).list();
   }
@@ -125,9 +115,9 @@ class OrderControllerTest {
     when(orderService.get(id)).thenReturn(Optional.empty());
 
     mockMvc
-      .perform(get("/api/v1.2/orders/{id}", id))
-      .andExpect(status().isNotFound())
-      .andExpect(header().exists(TRACE_ID_HEADER));
+        .perform(get("/api/v1.2/orders/{id}", id))
+        .andExpect(status().isNotFound())
+        .andExpect(header().exists(TRACE_ID_HEADER));
 
     verify(orderService).get(id);
   }
@@ -136,19 +126,19 @@ class OrderControllerTest {
   void getOrderReturnsDtoWhenFound() throws Exception {
     UUID id = UUID.randomUUID();
     UUID productId = UUID.randomUUID();
-    Order order = new Order(
-      id,
-      List.of(new OrderItem(productId, 5, new BigDecimal("2.00"))),
-      new BigDecimal("10.00")
-    );
+    Order order =
+        new Order(
+            id,
+            List.of(new OrderItem(productId, 5, new BigDecimal("2.00"))),
+            new BigDecimal("10.00"));
     when(orderService.get(id)).thenReturn(Optional.of(order));
 
     mockMvc
-      .perform(get("/api/v1.2/orders/{id}", id))
-      .andExpect(status().isOk())
-      .andExpect(header().exists(TRACE_ID_HEADER))
-      .andExpect(jsonPath("$.items[0].quantity").value(5))
-      .andExpect(jsonPath("$.total").value(10.00));
+        .perform(get("/api/v1.2/orders/{id}", id))
+        .andExpect(status().isOk())
+        .andExpect(header().exists(TRACE_ID_HEADER))
+        .andExpect(jsonPath("$.items[0].quantity").value(5))
+        .andExpect(jsonPath("$.total").value(10.00));
 
     verify(orderService).get(id);
   }

@@ -38,17 +38,14 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
 @WebMvcTest(CartController.class)
-@Import({ TraceIdFilter.class, CartControllerTest.TestConfig.class })
+@Import({TraceIdFilter.class, CartControllerTest.TestConfig.class})
 class CartControllerTest {
 
-  @Autowired
-  private MockMvc mockMvc;
+  @Autowired private MockMvc mockMvc;
 
-  @Autowired
-  private ObjectMapper objectMapper;
+  @Autowired private ObjectMapper objectMapper;
 
-  @Autowired
-  private CartService cartService;
+  @Autowired private CartService cartService;
 
   @AfterEach
   void resetMocks() {
@@ -60,37 +57,27 @@ class CartControllerTest {
     UUID productId = UUID.randomUUID();
     UUID cartId = UUID.randomUUID();
 
-    CartDTO requestDto = new CartDTO(
-      null,
-      List.of(new CartItemDTO(productId, 3))
-    );
+    CartDTO requestDto = new CartDTO(null, List.of(new CartItemDTO(productId, 3)));
     Cart created = new Cart(cartId, List.of(new CartItem(productId, 3)));
 
     when(cartService.create(any(Cart.class))).thenReturn(created);
 
-    String payload = Objects.requireNonNull(
-      objectMapper.writeValueAsString(requestDto)
-    );
+    String payload = Objects.requireNonNull(objectMapper.writeValueAsString(requestDto));
 
     mockMvc
-      .perform(
-        post("/api/v1.2/carts")
-          .contentType(MediaType.APPLICATION_JSON_VALUE)
-          .content(payload)
-      )
-      .andExpect(status().isCreated())
-      .andExpect(header().exists(TRACE_ID_HEADER))
-      .andExpect(jsonPath("$.id").value(cartId.toString()))
-      .andExpect(jsonPath("$.items[0].productId").value(productId.toString()))
-      .andExpect(jsonPath("$.items[0].quantity").value(3));
+        .perform(
+            post("/api/v1.2/carts").contentType(MediaType.APPLICATION_JSON_VALUE).content(payload))
+        .andExpect(status().isCreated())
+        .andExpect(header().exists(TRACE_ID_HEADER))
+        .andExpect(jsonPath("$.id").value(cartId.toString()))
+        .andExpect(jsonPath("$.items[0].productId").value(productId.toString()))
+        .andExpect(jsonPath("$.items[0].quantity").value(3));
 
     ArgumentCaptor<Cart> captor = ArgumentCaptor.forClass(Cart.class);
     verify(cartService).create(captor.capture());
     Cart captured = captor.getValue();
     assertThat(captured.getItems()).hasSize(1);
-    assertThat(captured.getItems().getFirst().getProductId()).isEqualTo(
-      productId
-    );
+    assertThat(captured.getItems().getFirst().getProductId()).isEqualTo(productId);
     assertThat(captured.getItems().getFirst().getQuantity()).isEqualTo(3);
   }
 
@@ -100,9 +87,9 @@ class CartControllerTest {
     when(cartService.get(id)).thenReturn(Optional.empty());
 
     mockMvc
-      .perform(get("/api/v1.2/carts/{id}", id))
-      .andExpect(status().isNotFound())
-      .andExpect(header().exists(TRACE_ID_HEADER));
+        .perform(get("/api/v1.2/carts/{id}", id))
+        .andExpect(status().isNotFound())
+        .andExpect(header().exists(TRACE_ID_HEADER));
 
     verify(cartService).get(id);
   }
@@ -115,10 +102,10 @@ class CartControllerTest {
     when(cartService.get(id)).thenReturn(Optional.of(cart));
 
     mockMvc
-      .perform(get("/api/v1.2/carts/{id}", id))
-      .andExpect(status().isOk())
-      .andExpect(header().exists(TRACE_ID_HEADER))
-      .andExpect(jsonPath("$.items[0].quantity").value(2));
+        .perform(get("/api/v1.2/carts/{id}", id))
+        .andExpect(status().isOk())
+        .andExpect(header().exists(TRACE_ID_HEADER))
+        .andExpect(jsonPath("$.items[0].quantity").value(2));
 
     verify(cartService).get(id);
   }
@@ -128,9 +115,9 @@ class CartControllerTest {
     UUID id = UUID.randomUUID();
 
     mockMvc
-      .perform(delete("/api/v1.2/carts/{id}", id))
-      .andExpect(status().isNoContent())
-      .andExpect(header().exists(TRACE_ID_HEADER));
+        .perform(delete("/api/v1.2/carts/{id}", id))
+        .andExpect(status().isNoContent())
+        .andExpect(header().exists(TRACE_ID_HEADER));
 
     verify(cartService).delete(id);
   }

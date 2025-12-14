@@ -29,79 +29,61 @@ import org.springframework.test.web.servlet.MockMvc;
 class SupplierControllerWireMockTest {
 
   @RegisterExtension
-  static WireMockExtension wireMock = WireMockExtension.newInstance()
-    .options(
-      com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig().dynamicPort()
-    )
-    .build();
+  static WireMockExtension wireMock =
+      WireMockExtension.newInstance()
+          .options(
+              com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig()
+                  .dynamicPort())
+          .build();
 
   @DynamicPropertySource
   static void overrideBaseUrl(DynamicPropertyRegistry registry) {
     registry.add("supplier.base-url", wireMock::baseUrl);
   }
 
-  @Autowired
-  private MockMvc mockMvc;
+  @Autowired private MockMvc mockMvc;
 
-  @Autowired
-  private ObjectMapper objectMapper;
+  @Autowired private ObjectMapper objectMapper;
 
   @Test
   void listProductsReturnsExternalPayload() throws Exception {
     UUID productId = UUID.randomUUID();
-    Map<String, Object> supplierProduct = Map.of(
-      "id",
-      productId.toString(),
-      "name",
-      "Quantum Grapes",
-      "price",
-      new BigDecimal("42.00")
-    );
+    Map<String, Object> supplierProduct =
+        Map.of(
+            "id", productId.toString(), "name", "Quantum Grapes", "price", new BigDecimal("42.00"));
 
     wireMock.stubFor(
-      com.github.tomakehurst.wiremock.client.WireMock.get(
-        urlEqualTo("/api/supplier/products")
-      ).willReturn(
-        aResponse()
-          .withHeader("Content-Type", "application/json")
-          .withBody(objectMapper.writeValueAsString(List.of(supplierProduct)))
-      )
-    );
+        com.github.tomakehurst.wiremock.client.WireMock.get(urlEqualTo("/api/supplier/products"))
+            .willReturn(
+                aResponse()
+                    .withHeader("Content-Type", "application/json")
+                    .withBody(objectMapper.writeValueAsString(List.of(supplierProduct)))));
 
     mockMvc
-      .perform(get("/api/v1.2/supplier/products"))
-      .andExpect(status().isOk())
-      .andExpect(header().exists("X-Trace-Id"))
-      .andExpect(jsonPath("$[0].id").value(productId.toString()))
-      .andExpect(jsonPath("$[0].name").value("Quantum Grapes"))
-      .andExpect(jsonPath("$[0].price").value(42.0));
+        .perform(get("/api/v1.2/supplier/products"))
+        .andExpect(status().isOk())
+        .andExpect(header().exists("X-Trace-Id"))
+        .andExpect(jsonPath("$[0].id").value(productId.toString()))
+        .andExpect(jsonPath("$[0].name").value("Quantum Grapes"))
+        .andExpect(jsonPath("$[0].price").value(42.0));
 
     wireMock.verify(
-      getRequestedFor(urlEqualTo("/api/supplier/products")).withHeader(
-        "Accept",
-        equalTo("application/json")
-      )
-    );
+        getRequestedFor(urlEqualTo("/api/supplier/products"))
+            .withHeader("Accept", equalTo("application/json")));
   }
 
   @Test
   void listProductsGracefullyHandlesEmptySupplierResponse() throws Exception {
     wireMock.stubFor(
-      com.github.tomakehurst.wiremock.client.WireMock.get(
-        urlEqualTo("/api/supplier/products")
-      ).willReturn(
-        aResponse()
-          .withHeader("Content-Type", "application/json")
-          .withBody("[]")
-      )
-    );
+        com.github.tomakehurst.wiremock.client.WireMock.get(urlEqualTo("/api/supplier/products"))
+            .willReturn(aResponse().withHeader("Content-Type", "application/json").withBody("[]")));
 
     mockMvc
-      .perform(get("/api/v1.2/supplier/products"))
-      .andExpect(status().isOk())
-      .andExpect(header().exists("X-Trace-Id"))
-      .andExpect(jsonPath("$").isArray())
-      .andExpect(jsonPath("$.length()").value(0));
+        .perform(get("/api/v1.2/supplier/products"))
+        .andExpect(status().isOk())
+        .andExpect(header().exists("X-Trace-Id"))
+        .andExpect(jsonPath("$").isArray())
+        .andExpect(jsonPath("$.length()").value(0));
 
     wireMock.verify(getRequestedFor(urlEqualTo("/api/supplier/products")));
   }

@@ -27,7 +27,10 @@ public class CategoryEntity {
 
   @Id
   @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "categories_seq")
-  @SequenceGenerator(name = "categories_seq", sequenceName = "categories_id_seq", allocationSize = 1)
+  @SequenceGenerator(
+      name = "categories_seq",
+      sequenceName = "categories_id_seq",
+      allocationSize = 1)
   private Long id;
 
   @Column(name = "name", nullable = false, length = 100, unique = true)

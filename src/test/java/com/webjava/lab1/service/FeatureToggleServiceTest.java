@@ -16,11 +16,9 @@ import org.springframework.test.context.TestPropertySource;
     properties = {"feature.cosmoCats.enabled=true", "feature.kittyProducts.enabled=false"})
 class FeatureToggleServiceTest {
 
-  @Autowired
-  private FeatureToggleService featureToggleService;
+  @Autowired private FeatureToggleService featureToggleService;
 
-  @Autowired
-  private FeatureToggleProperties featureToggleProperties;
+  @Autowired private FeatureToggleProperties featureToggleProperties;
 
   @Test
   void isFeatureEnabledReturnsTrueForEnabledFeature() {
@@ -39,8 +37,7 @@ class FeatureToggleServiceTest {
 
   @Test
   void checkFeatureDoesNotThrowWhenEnabled() {
-    assertThatCode(() -> featureToggleService.checkFeature("cosmoCats"))
-        .doesNotThrowAnyException();
+    assertThatCode(() -> featureToggleService.checkFeature("cosmoCats")).doesNotThrowAnyException();
   }
 
   @Test

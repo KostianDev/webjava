@@ -14,8 +14,7 @@ import org.springframework.test.context.TestPropertySource;
 @TestPropertySource(properties = "feature.cosmoCats.enabled=true")
 class CosmoCatServiceEnabledTest {
 
-  @Autowired
-  private CosmoCatService cosmoCatService;
+  @Autowired private CosmoCatService cosmoCatService;
 
   @Test
   void getCosmoCatsReturnsListWhenFeatureEnabled() {

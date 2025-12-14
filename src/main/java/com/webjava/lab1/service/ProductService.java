@@ -14,20 +14,20 @@ public class ProductService {
   @PostConstruct
   public void init() {
     // sample data
-    Product p1 = new Product(
-      UUID.randomUUID(),
-      "Star Yarn",
-      "Antigravity yarn for space knitting",
-      new BigDecimal("9.99"),
-      "Textiles"
-    );
-    Product p2 = new Product(
-      UUID.randomUUID(),
-      "Galaxy Milk",
-      "Enriched milk from the Andromeda herds",
-      new BigDecimal("4.50"),
-      "Food"
-    );
+    Product p1 =
+        new Product(
+            UUID.randomUUID(),
+            "Star Yarn",
+            "Antigravity yarn for space knitting",
+            new BigDecimal("9.99"),
+            "Textiles");
+    Product p2 =
+        new Product(
+            UUID.randomUUID(),
+            "Galaxy Milk",
+            "Enriched milk from the Andromeda herds",
+            new BigDecimal("4.50"),
+            "Food");
     storage.put(p1.getId(), p1);
     storage.put(p2.getId(), p2);
   }
