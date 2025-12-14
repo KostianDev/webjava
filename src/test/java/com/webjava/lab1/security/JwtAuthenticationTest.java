@@ -17,6 +17,7 @@ import com.webjava.lab1.service.ProductService;
 import com.webjava.lab1.web.TraceIdFilter;
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
@@ -94,7 +95,10 @@ class JwtAuthenticationTest {
         """;
 
     mockMvc
-        .perform(post("/api/v4/products").contentType(MediaType.APPLICATION_JSON).content(payload))
+        .perform(
+            post("/api/v4/products")
+                .contentType(Objects.requireNonNull(MediaType.APPLICATION_JSON))
+                .content(payload))
         .andExpect(status().isCreated());
   }
 
@@ -120,7 +124,10 @@ class JwtAuthenticationTest {
         """;
 
     mockMvc
-        .perform(post("/api/v4/products").contentType(MediaType.APPLICATION_JSON).content(payload))
+        .perform(
+            post("/api/v4/products")
+                .contentType(Objects.requireNonNull(MediaType.APPLICATION_JSON))
+                .content(payload))
         .andExpect(status().isCreated());
   }
 

@@ -37,9 +37,25 @@
       "defaultValue": "X-API-Key"
     },
     {
-      "name": "security.api-key.valid-keys",
+      "name": "security.api-key.keys",
       "type": "java.util.List",
-      "description": "List of valid API keys for authentication."
+      "description": "List of API key entries with key, name, and scopes."
+    },
+    {
+      "name": "security.api-key.keys[].key",
+      "type": "java.lang.String",
+      "description": "The API key value."
+    },
+    {
+      "name": "security.api-key.keys[].name",
+      "type": "java.lang.String",
+      "description": "The client name associated with this API key."
+    },
+    {
+      "name": "security.api-key.keys[].scopes",
+      "type": "java.util.List",
+      "description": "List of scopes granted to this API key.",
+      "defaultValue": ["read", "write"]
     }
   ]
 }

@@ -43,7 +43,7 @@ public class ProductJpaService {
             .findById(categoryId)
             .orElseThrow(() -> new EntityNotFoundException("Category", categoryId));
     ProductEntity entity = mapper.toEntity(product, category);
-    ProductEntity saved = productRepository.save(entity);
+    ProductEntity saved = Objects.requireNonNull(productRepository.save(entity));
     return mapper.toDomain(saved);
   }
 

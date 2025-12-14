@@ -7,12 +7,12 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 public class ApiKeyAuthenticationToken extends AbstractAuthenticationToken {
 
   private final String apiKey;
+  private final String clientName;
 
-  public ApiKeyAuthenticationToken(String apiKey) {
-    super(
-        List.of(
-            new SimpleGrantedAuthority("SCOPE_read"), new SimpleGrantedAuthority("SCOPE_write")));
+  public ApiKeyAuthenticationToken(String apiKey, String clientName, List<String> scopes) {
+    super(scopes.stream().map(scope -> new SimpleGrantedAuthority("SCOPE_" + scope)).toList());
     this.apiKey = apiKey;
+    this.clientName = clientName;
     setAuthenticated(true);
   }
 
@@ -23,6 +23,6 @@ public class ApiKeyAuthenticationToken extends AbstractAuthenticationToken {
 
   @Override
   public Object getPrincipal() {
-    return "api-key-user";
+    return clientName;
   }
 }

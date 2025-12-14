@@ -14,25 +14,48 @@ class ApiKeyAuthenticationTest {
 
     properties.setEnabled(true);
     properties.setHeaderName("X-Custom-API-Key");
-    properties.setValidKeys(List.of("key-1", "key-2", "key-3"));
+
+    ApiKeyProperties.ApiKeyEntry entry1 = new ApiKeyProperties.ApiKeyEntry();
+    entry1.setKey("key-1");
+    entry1.setName("Client 1");
+    entry1.setScopes(List.of("read", "write"));
+
+    ApiKeyProperties.ApiKeyEntry entry2 = new ApiKeyProperties.ApiKeyEntry();
+    entry2.setKey("key-2");
+    entry2.setName("Client 2");
+    entry2.setScopes(List.of("read"));
+
+    properties.setKeys(List.of(entry1, entry2));
 
     assertThat(properties.isEnabled()).isTrue();
     assertThat(properties.getHeaderName()).isEqualTo("X-Custom-API-Key");
-    assertThat(properties.getValidKeys()).hasSize(3);
-    assertThat(properties.getValidKeys()).containsExactly("key-1", "key-2", "key-3");
+    assertThat(properties.getKeys()).hasSize(2);
   }
 
   @Test
   void apiKeyAuthenticationTokenHoldsCredentials() {
-    ApiKeyAuthenticationToken token = new ApiKeyAuthenticationToken("test-api-key");
+    List<String> scopes = List.of("read", "write", "admin");
+    ApiKeyAuthenticationToken token =
+        new ApiKeyAuthenticationToken("test-api-key", "Test Client", scopes);
 
-    assertThat(token.getPrincipal()).isEqualTo("api-key-user");
+    assertThat(token.getPrincipal()).isEqualTo("Test Client");
     assertThat(token.getCredentials()).isEqualTo("test-api-key");
     assertThat(token.isAuthenticated()).isTrue();
-    assertThat(token.getAuthorities()).hasSize(2);
+    assertThat(token.getAuthorities()).hasSize(3);
     assertThat(token.getAuthorities())
         .extracting("authority")
-        .containsExactlyInAnyOrder("SCOPE_read", "SCOPE_write");
+        .containsExactlyInAnyOrder("SCOPE_read", "SCOPE_write", "SCOPE_admin");
+  }
+
+  @Test
+  void apiKeyAuthenticationTokenWithEmptyScopes() {
+    ApiKeyAuthenticationToken token =
+        new ApiKeyAuthenticationToken("test-api-key", "Minimal Client", List.of());
+
+    assertThat(token.getPrincipal()).isEqualTo("Minimal Client");
+    assertThat(token.getCredentials()).isEqualTo("test-api-key");
+    assertThat(token.isAuthenticated()).isTrue();
+    assertThat(token.getAuthorities()).isEmpty();
   }
 
   @Test
@@ -41,17 +64,44 @@ class ApiKeyAuthenticationTest {
 
     assertThat(properties.isEnabled()).isFalse();
     assertThat(properties.getHeaderName()).isEqualTo("X-API-Key");
-    assertThat(properties.getValidKeys()).isEmpty();
+    assertThat(properties.getKeys()).isEmpty();
   }
 
   @Test
-  void apiKeyPropertiesWithMultipleKeys() {
+  void apiKeyPropertiesFindByKeyReturnsCorrectEntry() {
     ApiKeyProperties properties = new ApiKeyProperties();
 
-    properties.setValidKeys(List.of("production-key", "staging-key", "development-key"));
+    ApiKeyProperties.ApiKeyEntry prodEntry = new ApiKeyProperties.ApiKeyEntry();
+    prodEntry.setKey("production-key");
+    prodEntry.setName("Production Client");
+    prodEntry.setScopes(List.of("read", "write"));
 
-    assertThat(properties.getValidKeys()).hasSize(3);
-    assertThat(properties.getValidKeys())
-        .containsExactly("production-key", "staging-key", "development-key");
+    ApiKeyProperties.ApiKeyEntry stagingEntry = new ApiKeyProperties.ApiKeyEntry();
+    stagingEntry.setKey("staging-key");
+    stagingEntry.setName("Staging Client");
+    stagingEntry.setScopes(List.of("read"));
+
+    properties.setKeys(List.of(prodEntry, stagingEntry));
+
+    ApiKeyProperties.ApiKeyEntry found = properties.findByKey("production-key");
+    assertThat(found).isNotNull();
+    assertThat(found.getName()).isEqualTo("Production Client");
+    assertThat(found.getScopes()).containsExactly("read", "write");
+
+    ApiKeyProperties.ApiKeyEntry staging = properties.findByKey("staging-key");
+    assertThat(staging).isNotNull();
+    assertThat(staging.getName()).isEqualTo("Staging Client");
+
+    ApiKeyProperties.ApiKeyEntry notFound = properties.findByKey("invalid-key");
+    assertThat(notFound).isNull();
+  }
+
+  @Test
+  void apiKeyEntryDefaultValues() {
+    ApiKeyProperties.ApiKeyEntry entry = new ApiKeyProperties.ApiKeyEntry();
+
+    assertThat(entry.getKey()).isNull();
+    assertThat(entry.getName()).isNull();
+    assertThat(entry.getScopes()).containsExactly("read", "write");
   }
 }
