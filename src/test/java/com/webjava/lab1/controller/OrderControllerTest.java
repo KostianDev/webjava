@@ -12,6 +12,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.webjava.lab1.config.TestSecurityConfig;
 import com.webjava.lab1.domain.Order;
 import com.webjava.lab1.domain.OrderItem;
 import com.webjava.lab1.dto.OrderDTO;
@@ -35,10 +36,12 @@ import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
 @WebMvcTest(OrderController.class)
-@Import({TraceIdFilter.class, OrderControllerTest.TestConfig.class})
+@ActiveProfiles("no-auth")
+@Import({TraceIdFilter.class, OrderControllerTest.TestConfig.class, TestSecurityConfig.class})
 class OrderControllerTest {
 
   @Autowired private MockMvc mockMvc;

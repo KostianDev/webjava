@@ -23,6 +23,8 @@ ext {
     "**/*Application.*",
     "**/config/*Configuration.*",
     "**/config/*Properties.*",
+    "**/config/*Config.*",
+    "**/security/**",
     "**/mapper/**"
   ]
 }

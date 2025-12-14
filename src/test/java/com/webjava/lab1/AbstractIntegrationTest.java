@@ -7,7 +7,7 @@ import org.springframework.test.context.DynamicPropertySource;
 import org.testcontainers.containers.PostgreSQLContainer;
 
 @SpringBootTest
-@ActiveProfiles("integration")
+@ActiveProfiles({"integration", "no-auth"})
 @SuppressWarnings("resource")
 public abstract class AbstractIntegrationTest {
 
