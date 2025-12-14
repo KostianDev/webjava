@@ -76,9 +76,7 @@ class ProductControllerTest {
 
     mockMvc
         .perform(
-            post("/api/v4/products")
-                .contentType(MediaType.APPLICATION_JSON_VALUE)
-                .content(payload))
+            post("/api/v4/products").contentType(MediaType.APPLICATION_JSON_VALUE).content(payload))
         .andExpect(status().isCreated())
         .andExpect(jsonPath("$.name").value("Star Yarn"));
 
@@ -95,9 +93,7 @@ class ProductControllerTest {
 
     mockMvc
         .perform(
-            post("/api/v4/products")
-                .contentType(MediaType.APPLICATION_JSON_VALUE)
-                .content(payload))
+            post("/api/v4/products").contentType(MediaType.APPLICATION_JSON_VALUE).content(payload))
         .andExpect(status().isBadRequest())
         .andExpect(header().exists(TRACE_ID_HEADER))
         .andExpect(jsonPath("$.title").value("Validation Failed"))
