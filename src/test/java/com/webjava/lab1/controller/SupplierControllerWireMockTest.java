@@ -11,6 +11,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
+import com.webjava.lab1.AbstractIntegrationTest;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
@@ -19,14 +20,12 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 
-@SpringBootTest
 @AutoConfigureMockMvc
-class SupplierControllerWireMockTest {
+class SupplierControllerWireMockTest extends AbstractIntegrationTest {
 
   @RegisterExtension
   static WireMockExtension wireMock =

@@ -4,17 +4,15 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import com.webjava.lab1.AbstractIntegrationTest;
 import com.webjava.lab1.config.FeatureToggleProperties;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.test.context.TestPropertySource;
 
-@SpringBootTest(webEnvironment = WebEnvironment.NONE)
 @TestPropertySource(
     properties = {"feature.cosmoCats.enabled=true", "feature.kittyProducts.enabled=false"})
-class FeatureToggleServiceTest {
+class FeatureToggleServiceTest extends AbstractIntegrationTest {
 
   @Autowired private FeatureToggleService featureToggleService;
 

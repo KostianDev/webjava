@@ -1,10 +1,8 @@
 package com.webjava.lab1;
 
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
 
-@SpringBootTest
-class Lab1ApplicationTests {
+class Lab1ApplicationTests extends AbstractIntegrationTest {
 
   @Test
   void contextLoads() {}
