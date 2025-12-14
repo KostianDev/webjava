@@ -1,0 +1,14 @@
+package com.webjava.lab1.repository;
+
+import com.webjava.lab1.entity.CategoryEntity;
+import java.util.Optional;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+
+@Repository
+public interface CategoryRepository extends JpaRepository<CategoryEntity, Long> {
+
+  Optional<CategoryEntity> findByName(String name);
+
+  boolean existsByName(String name);
+}
