@@ -15,6 +15,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -38,6 +39,7 @@ public class OrderJpaService {
   }
 
   @Transactional
+  @PreAuthorize("hasAuthority('SCOPE_write')")
   public Order create(Long userId, List<OrderItemRequest> itemRequests) {
     Objects.requireNonNull(userId, "userId");
     UserEntity user =
@@ -78,11 +80,13 @@ public class OrderJpaService {
   }
 
   @Transactional(readOnly = true)
+  @PreAuthorize("hasAuthority('SCOPE_read')")
   public List<Order> findAll() {
     return orderRepository.findAll().stream().map(mapper::toDomain).collect(Collectors.toList());
   }
 
   @Transactional(readOnly = true)
+  @PreAuthorize("hasAuthority('SCOPE_read')")
   public Optional<Order> findById(Long id) {
     Objects.requireNonNull(id, "id must not be null");
     return orderRepository.findById(id).map(mapper::toDomain);
@@ -102,6 +106,7 @@ public class OrderJpaService {
   }
 
   @Transactional
+  @PreAuthorize("hasAuthority('SCOPE_write')")
   public void delete(Long id) {
     Objects.requireNonNull(id, "id must not be null");
     orderRepository.deleteById(id);

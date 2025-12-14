@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -33,6 +34,7 @@ public class ProductJpaService {
   }
 
   @Transactional
+  @PreAuthorize("hasAuthority('SCOPE_write')")
   public Product create(Product product) {
     Long categoryId =
         Objects.requireNonNull(product.getCategoryId(), "categoryId must not be null");
@@ -46,11 +48,13 @@ public class ProductJpaService {
   }
 
   @Transactional(readOnly = true)
+  @PreAuthorize("hasAuthority('SCOPE_read')")
   public List<Product> findAll() {
     return productRepository.findAll().stream().map(mapper::toDomain).collect(Collectors.toList());
   }
 
   @Transactional(readOnly = true)
+  @PreAuthorize("hasAuthority('SCOPE_read')")
   public Optional<Product> findById(Long id) {
     Objects.requireNonNull(id, "id must not be null");
     return productRepository.findById(id).map(mapper::toDomain);
@@ -78,6 +82,7 @@ public class ProductJpaService {
   }
 
   @Transactional
+  @PreAuthorize("hasAuthority('SCOPE_write')")
   public Product update(Long id, Product product) {
     Objects.requireNonNull(id, "id must not be null");
     ProductEntity existing =
@@ -103,6 +108,7 @@ public class ProductJpaService {
   }
 
   @Transactional
+  @PreAuthorize("hasAuthority('SCOPE_write')")
   public void delete(Long id) {
     Objects.requireNonNull(id, "id must not be null");
     productRepository.deleteById(id);
