@@ -10,7 +10,7 @@
       "name": "api.prefix",
       "type": "java.lang.String",
       "description": "Global API prefix applied to REST controller mappings.",
-      "defaultValue": "/api/v1.2"
+      "defaultValue": "/api/v3"
     },
     {
       "name": "feature.cosmoCats.enabled",

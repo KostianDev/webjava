@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("${api.prefix:/api/v1.2}/carts")
+@RequestMapping("${api.prefix:/api/v3}/carts")
 public class CartController {
 
   private final CartService service;

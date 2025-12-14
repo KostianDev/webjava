@@ -59,7 +59,7 @@ class SupplierControllerWireMockTest extends AbstractIntegrationTest {
                     .withBody(objectMapper.writeValueAsString(List.of(supplierProduct)))));
 
     mockMvc
-        .perform(get("/api/v1.2/supplier/products"))
+        .perform(get("/api/v3/supplier/products"))
         .andExpect(status().isOk())
         .andExpect(header().exists("X-Trace-Id"))
         .andExpect(jsonPath("$[0].id").value(productId.toString()))
@@ -78,7 +78,7 @@ class SupplierControllerWireMockTest extends AbstractIntegrationTest {
             .willReturn(aResponse().withHeader("Content-Type", "application/json").withBody("[]")));
 
     mockMvc
-        .perform(get("/api/v1.2/supplier/products"))
+        .perform(get("/api/v3/supplier/products"))
         .andExpect(status().isOk())
         .andExpect(header().exists("X-Trace-Id"))
         .andExpect(jsonPath("$").isArray())
