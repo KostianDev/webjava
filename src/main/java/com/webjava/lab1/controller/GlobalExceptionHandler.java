@@ -1,5 +1,6 @@
 package com.webjava.lab1.controller;
 
+import com.webjava.lab1.service.FeatureNotAvailableException;
 import com.webjava.lab1.service.ProductNotFoundException;
 import com.webjava.lab1.web.TraceIdFilter;
 import java.net.URI;
@@ -29,6 +30,9 @@ public class GlobalExceptionHandler {
   );
   private static final URI INTERNAL_PROBLEM_TYPE = URI.create(
     "https://example.com/probs/internal"
+  );
+  private static final URI FEATURE_DISABLED_PROBLEM_TYPE = URI.create(
+    "https://example.com/probs/feature-disabled"
   );
 
   @SuppressWarnings("null")
@@ -141,6 +145,28 @@ public class GlobalExceptionHandler {
     pd.setProperty("traceId", traceId);
     pd.setProperty("path", path);
     return ResponseEntity.status(HttpStatus.NOT_FOUND)
+      .header(TraceIdFilter.TRACE_ID_HEADER, traceId)
+      .body(pd);
+  }
+
+  @ExceptionHandler(FeatureNotAvailableException.class)
+  public ResponseEntity<ProblemDetail> handleFeatureNotAvailable(
+    FeatureNotAvailableException ex,
+    WebRequest request
+  ) {
+    String traceId = resolveTraceId(request);
+    String path = resolvePath(request);
+
+    ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.NOT_IMPLEMENTED);
+    pd.setType(Objects.requireNonNull(FEATURE_DISABLED_PROBLEM_TYPE));
+    pd.setTitle("Feature Not Available");
+    pd.setDetail(ex.getMessage());
+    pd.setInstance(toInstanceUri(path));
+    pd.setProperty("timestamp", Instant.now());
+    pd.setProperty("traceId", traceId);
+    pd.setProperty("path", path);
+    pd.setProperty("featureName", ex.getFeatureName());
+    return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED)
       .header(TraceIdFilter.TRACE_ID_HEADER, traceId)
       .body(pd);
   }
