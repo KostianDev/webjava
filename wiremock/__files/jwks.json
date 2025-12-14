@@ -1,0 +1,12 @@
+{
+  "keys": [
+    {
+      "kty": "RSA",
+      "e": "AQAB",
+      "use": "sig",
+      "kid": "cosmo-cats-key-1",
+      "alg": "RS256",
+      "n": "xjY5jEkTpQxQuIgXCffCANYLKEL2M6riPxUu8bGNIDH6QhqLfFkdLMrWbFx9qbmY0Vj3HZqq2Uuoi7jPylNLTxMa5gJkxJ3Z9xEJmHC7x7t7gJFS6iFyMmzByEDPbHfX0ek0hDmPJC0C0jAfkEyKYN1Bc4dD0bYMKQXpKqQGFgWBzLvhKPxbcjMY9X6J5HqW1OWkj3gJfKtB3cXwBRjD0HvI2HoiLHLfAS1bnQqRHRZJVGJ0HlM8eSQbHRDjKtLDmkpJLMaZaHqcyLJ6LcHfXrN9L1Bv5Voj2H3FqKPVRAHjYgZlsHVLPJCeZ5N5HqJfB9t1Y2LRmjO7Xh7FzxKw"
+    }
+  ]
+}

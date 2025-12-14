@@ -37,3 +37,9 @@ out/
 .vscode/
 .prettierrc.yaml
 .env
+
+### Security ###
+*.pem
+*.key
+*.p12
+*.jks
