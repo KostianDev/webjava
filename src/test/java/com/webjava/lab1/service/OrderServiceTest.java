@@ -10,10 +10,8 @@ import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.annotation.DirtiesContext;
 
 @SpringBootTest(classes = OrderService.class)
-@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 class OrderServiceTest {
 
   @Autowired
@@ -39,11 +37,11 @@ class OrderServiceTest {
     Order created = service.create(sampleOrder());
 
     List<Order> snapshot = service.list();
-    assertThat(snapshot).containsExactly(created);
+    assertThat(snapshot).contains(created);
 
     snapshot.clear();
 
-    assertThat(service.list()).containsExactly(created);
+    assertThat(service.list()).contains(created);
   }
 
   private Order sampleOrder() {

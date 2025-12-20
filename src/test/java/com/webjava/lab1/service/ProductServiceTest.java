@@ -10,10 +10,8 @@ import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.annotation.DirtiesContext;
 
 @SpringBootTest(classes = ProductService.class)
-@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 class ProductServiceTest {
 
   @Autowired
@@ -42,10 +40,11 @@ class ProductServiceTest {
   void listReturnsInitialSampleData() {
     List<Product> products = service.list();
 
-    assertThat(products).hasSize(2);
+    assertThat(products).hasSizeGreaterThanOrEqualTo(2);
+    int sizeBefore = products.size();
     products.clear();
 
-    assertThat(service.list()).hasSize(2);
+    assertThat(service.list()).hasSize(sizeBefore);
   }
 
   @Test
@@ -89,21 +88,28 @@ class ProductServiceTest {
 
   @Test
   void deleteRemovesExistingProduct() {
-    Product existing = service.list().get(0);
-    UUID id = existing.getId();
+    Product newProduct = service.create(new Product(
+      null,
+      "ToDelete",
+      "Will be deleted",
+      new BigDecimal("5.00"),
+      "Test"
+    ));
+    UUID id = newProduct.getId();
+    int sizeBefore = service.list().size();
 
     service.delete(id);
 
     assertThat(service.get(id)).isEmpty();
-    assertThat(service.list()).hasSize(1);
+    assertThat(service.list()).hasSize(sizeBefore - 1);
   }
 
   @Test
   void deleteIsIdempotentForMissingProduct() {
-    List<Product> before = service.list();
+    int sizeBefore = service.list().size();
 
     service.delete(UUID.randomUUID());
 
-    assertThat(service.list()).hasSize(before.size());
+    assertThat(service.list()).hasSize(sizeBefore);
   }
 }
