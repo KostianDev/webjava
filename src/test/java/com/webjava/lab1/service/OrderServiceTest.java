@@ -7,17 +7,17 @@ import com.webjava.lab1.domain.OrderItem;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.annotation.DirtiesContext;
 
+@SpringBootTest(classes = OrderService.class)
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 class OrderServiceTest {
 
+  @Autowired
   private OrderService service;
-
-  @BeforeEach
-  void setUp() {
-    service = new OrderService();
-  }
 
   @Test
   void createAssignsIdentifierAndStoresOrder() {

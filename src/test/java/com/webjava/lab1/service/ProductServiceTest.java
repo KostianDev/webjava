@@ -7,18 +7,17 @@ import com.webjava.lab1.domain.Product;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.annotation.DirtiesContext;
 
+@SpringBootTest(classes = ProductService.class)
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 class ProductServiceTest {
 
+  @Autowired
   private ProductService service;
-
-  @BeforeEach
-  void setUp() {
-    service = new ProductService();
-    service.init();
-  }
 
   @Test
   void createAssignsIdAndPersistsProduct() {
