@@ -4,6 +4,7 @@ import static com.webjava.lab1.web.TraceIdFilter.TRACE_ID_HEADER;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.webjava.lab1.dto.ProductDTO;
+import com.webjava.lab1.service.FeatureNotAvailableException;
 import com.webjava.lab1.service.ProductNotFoundException;
 import java.lang.reflect.Method;
 import java.util.List;
@@ -27,7 +28,7 @@ class GlobalExceptionHandlerTest {
   @Test
   void handleNotFoundPropagatesHeaderTraceId() {
     MockHttpServletRequest request = new MockHttpServletRequest();
-    request.setRequestURI("/api/v1.2/products/" + UUID.randomUUID());
+    request.setRequestURI("/api/v2/products/" + UUID.randomUUID());
     request.addHeader(TRACE_ID_HEADER, "trace-123");
     ServletWebRequest webRequest = new ServletWebRequest(
       request,
@@ -76,7 +77,7 @@ class GlobalExceptionHandlerTest {
   @Test
   void handleValidationReturnsProblemDetailWithViolations() throws Exception {
     MockHttpServletRequest request = new MockHttpServletRequest();
-    request.setRequestURI("/api/v1.2/products");
+    request.setRequestURI("/api/v2/products");
     ServletWebRequest webRequest = new ServletWebRequest(
       request,
       new MockHttpServletResponse()
@@ -114,6 +115,31 @@ class GlobalExceptionHandlerTest {
     var props = Objects.requireNonNull(body.getProperties());
     assertThat(props.get("violations")).isInstanceOf(List.class);
     assertThat((List<?>) props.get("violations")).hasSize(2);
+  }
+
+  @Test
+  void handleFeatureNotAvailableReturns501WithFeatureName() {
+    MockHttpServletRequest request = new MockHttpServletRequest();
+    request.setRequestURI("/api/v2/cosmo-cats");
+    request.addHeader(TRACE_ID_HEADER, "trace-feature-789");
+    ServletWebRequest webRequest = new ServletWebRequest(
+      request,
+      new MockHttpServletResponse()
+    );
+
+    ResponseEntity<ProblemDetail> response = handler.handleFeatureNotAvailable(
+      new FeatureNotAvailableException("cosmoCats"),
+      webRequest
+    );
+
+    assertThat(response.getStatusCode().value()).isEqualTo(501);
+    assertThat(response.getHeaders().getFirst(TRACE_ID_HEADER)).isEqualTo(
+      "trace-feature-789"
+    );
+    ProblemDetail body = Objects.requireNonNull(response.getBody());
+    var props = Objects.requireNonNull(body.getProperties());
+    assertThat(props.get("featureName")).isEqualTo("cosmoCats");
+    assertThat(body.getDetail()).contains("cosmoCats");
   }
 
   private static final class DummyController {
