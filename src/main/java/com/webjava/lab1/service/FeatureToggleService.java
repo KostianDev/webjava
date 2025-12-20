@@ -13,7 +13,7 @@ public class FeatureToggleService {
   }
 
   public boolean isFeatureEnabled(String featureName) {
-    return properties.getToggles().getOrDefault(featureName + ".enabled", false);
+    return properties.isEnabled(featureName);
   }
 
   public void checkFeature(String featureName) {

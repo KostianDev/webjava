@@ -11,7 +11,7 @@ import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.test.context.TestPropertySource;
 
 @SpringBootTest(webEnvironment = WebEnvironment.NONE)
-@TestPropertySource(properties = "feature.cosmoCats.enabled=true")
+@TestPropertySource(properties = "feature.toggles.cosmoCats=true")
 class CosmoCatServiceEnabledTest {
 
   @Autowired

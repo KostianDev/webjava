@@ -9,7 +9,7 @@ import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.test.context.TestPropertySource;
 
 @SpringBootTest(webEnvironment = WebEnvironment.NONE)
-@TestPropertySource(properties = "feature.cosmoCats.enabled=false")
+@TestPropertySource(properties = "feature.toggles.cosmoCats=false")
 class CosmoCatServiceDisabledTest {
 
   @Autowired

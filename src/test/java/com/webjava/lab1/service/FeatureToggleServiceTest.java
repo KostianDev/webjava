@@ -13,7 +13,7 @@ import org.springframework.test.context.TestPropertySource;
 
 @SpringBootTest(webEnvironment = WebEnvironment.NONE)
 @TestPropertySource(
-    properties = {"feature.cosmoCats.enabled=true", "feature.kittyProducts.enabled=false"})
+    properties = {"feature.toggles.cosmoCats=true", "feature.toggles.kittyProducts=false"})
 class FeatureToggleServiceTest {
 
   @Autowired
@@ -52,8 +52,8 @@ class FeatureToggleServiceTest {
 
   @Test
   void propertiesAreLoadedCorrectly() {
-    assertThat(featureToggleProperties.isCosmoCatsEnabled()).isTrue();
-    assertThat(featureToggleProperties.isKittyProductsEnabled()).isFalse();
+    assertThat(featureToggleProperties.isEnabled("cosmoCats")).isTrue();
+    assertThat(featureToggleProperties.isEnabled("kittyProducts")).isFalse();
   }
 
   @Test
