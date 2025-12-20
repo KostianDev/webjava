@@ -10,8 +10,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("${api.prefix:/api/v1.1}/orders")
+@RequestMapping("${api.prefix:/api/v1.2}/orders")
 public class OrderController {
+
   private final OrderService service;
   private final OrderMapper mapper;
 
@@ -34,8 +35,8 @@ public class OrderController {
   @GetMapping("/{id}")
   public ResponseEntity<OrderDTO> get(@PathVariable UUID id) {
     return service
-        .get(id)
-        .map(o -> ResponseEntity.ok(mapper.toDto(o)))
-        .orElseGet(() -> ResponseEntity.notFound().build());
+      .get(id)
+      .map(o -> ResponseEntity.ok(mapper.toDto(o)))
+      .orElseGet(() -> ResponseEntity.notFound().build());
   }
 }

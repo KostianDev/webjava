@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class OrderService {
+
   private final Map<UUID, Order> storage = new LinkedHashMap<>();
 
   public Order create(Order order) {

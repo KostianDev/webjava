@@ -13,7 +13,8 @@ import org.springframework.web.filter.OncePerRequestFilter;
 @Component
 public class TraceIdFilter extends OncePerRequestFilter {
 
-  public static final String TRACE_ID_ATTRIBUTE = TraceIdFilter.class.getName() + ".TRACE_ID";
+  public static final String TRACE_ID_ATTRIBUTE =
+    TraceIdFilter.class.getName() + ".TRACE_ID";
   public static final String TRACE_ID_HEADER = "X-Trace-Id";
   private static final String FALLBACK_HEADER = "X-Request-ID";
 
@@ -21,8 +22,8 @@ public class TraceIdFilter extends OncePerRequestFilter {
   protected void doFilterInternal(
     @NonNull HttpServletRequest request,
     @NonNull HttpServletResponse response,
-    @NonNull FilterChain filterChain)
-      throws ServletException, IOException {
+    @NonNull FilterChain filterChain
+  ) throws ServletException, IOException {
     String traceId = resolveOrGenerateTraceId(request);
     request.setAttribute(TRACE_ID_ATTRIBUTE, traceId);
     response.setHeader(TRACE_ID_HEADER, traceId);

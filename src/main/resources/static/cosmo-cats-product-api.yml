@@ -1,10 +1,10 @@
 openapi: 3.0.3
 info:
   title: Cosmo Cats Product API
-  version: 1.1.0
+  version: 1.2.0
   description: API contract for Product CRUD operations for Cosmo Cats Intergalactic Marketplace
 servers:
-  - url: /api/v1.1
+  - url: /api/v1.2
 paths:
   /products:
     get:

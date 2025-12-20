@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.util.UUID;
 
 public class SupplierProductDTO {
+
   private UUID id;
   private String name;
   private BigDecimal price;
